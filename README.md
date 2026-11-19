@@ -4,6 +4,66 @@ MG4 elektrikli araç için Home Assistant üzerinde geliştirilmiş, Türkçe bi
 
 > **Durum:** Geliştirme sürümü. Mevcut sistemden uyarlanmıştır; farklı Home Assistant kurulumlarında sensör adları ve özel kart bağımlılıkları değişebilir. Önce Private repoda test edilmesi önerilir.
 
+## Ekran görüntüleri ve proje tanıtımı
+
+MG4 Cockpit, araç bilgilerini Home Assistant üzerinde yedi sekmede bir araya getirir. Aşağıdaki görseller, çalışan sistemden alınmış **gerçek mobil ekran görüntüleridir**. Görüntülerdeki değerler örnektir; veri kullanılabilirliği gateway'e, araç durumuna ve Home Assistant yapılandırmasına bağlıdır.
+
+### Kokpit · Tek ekranda araç özeti
+
+Batarya doluluk oranı, tahmini menzil, araç durumu, kilitler, sıcaklık ve temel araç bilgileri.
+
+<img src="docs/images/kokpit.png" alt="MG4 Cockpit batarya ve araç özeti" width="340">
+
+### Enerji · Şarj kontrolü ve izleme
+
+Şarj başlatma/durdurma, soket kilidi, şarj sınırı, akım seçimi ve canlı şarj ölçümleri. EPİAŞ PTF ve tahmini fiyat kartları **isteğe bağlı modüldür**; gösterilen maliyet hesabı varsayımsaldır.
+
+<img src="docs/images/sarj.png" alt="MG4 şarj kontrolleri ve EPİAŞ isteğe bağlı fiyat kartları" width="340">
+
+### Planlar · Şarj ve batarya ön ısıtma
+
+Araçtaki şarj zamanlaması, plan modu ve batarya ön ısıtma durumu.
+
+<img src="docs/images/planlama.png" alt="MG4 şarj ve batarya ısıtma planları" width="340">
+
+### Konfor · Klima ve koltuk ısıtma
+
+Kabin sıcaklığı, iklimlendirme ayarları ve koltuk ısıtma kontrolleri.
+
+<img src="docs/images/konfor.png" alt="MG4 iklimlendirme ve koltuk ısıtma" width="340">
+
+### Araç · Güvenlik ve durum
+
+Kapı, bagaj, kaput, cam ve lastik durumlarını tek sayfadan izleme.
+
+<img src="docs/images/arac.png" alt="MG4 kapılar camlar ve lastik durumları" width="340">
+
+### Konum · Son bilinen araç konumu
+
+Araçtan alınan son konum ve güncelleme zamanı. Harita **canlı takip veya geçmiş rota** anlamına gelmez. Gizlilik amacıyla ekran görüntüsündeki harita bulanıklaştırılmıştır.
+
+<img src="docs/images/konum.png" alt="MG4 son konum ekranı, harita gizlilik için bulanıklaştırılmış" width="340">
+
+### Analiz · Menzil tahmini doğruluğu
+
+Gösterge menzili ile gerçekleşen sürüş arasındaki sapma ve zaman içindeki doğruluk eğilimi.
+
+<img src="docs/images/menzil-analizi.png" alt="MG4 menzil sapması ve doğruluk analizi" width="340">
+
+### Analiz · Soğuk hava ve batarya eğilimi
+
+Soğuk ve ılık hava sürüşlerinin tüketim karşılaştırması ve yeterli veri toplandığında batarya performans eğilimi. **Bu gösterge gerçek batarya sağlığı (SoH) ölçümü değildir.**
+
+<img src="docs/images/batarya-analizi.png" alt="MG4 soğuk hava tüketim analizi ve veri eşikleri" width="340">
+
+### Sistem · Gateway ve veri durumu
+
+Son araç verileri, komut bildirimleri ve gateway yenileme ayarları; veri gecikmelerini ve bağlantı durumunu değerlendirmek için.
+
+<img src="docs/images/sistem.png" alt="MG4 gateway veri yenileme ve sistem durumu" width="340">
+
+---
+
 ## Araç ile iletişim
 
 Bu proje MG iSMART hesabından araç verilerini alabilmek ve Home Assistant'a MQTT üzerinden aktarabilmek için **[SAIC Python MQTT Gateway](https://github.com/SAIC-iSmart-API/saic-python-mqtt-gateway)** projesini kullanır.
@@ -48,7 +108,7 @@ EPİAŞ modülü Türkiye'deki kullanıcılar içindir ve ana dashboardun çalı
 | `epias/` | İsteğe bağlı elektrik fiyatı entegrasyonu |
 | `tools/` | VIN'i yalnızca yerel kopyalara uygulama aracı |
 | `examples/` | Örnek Home Assistant yapılandırmaları |
-| `docs/` | Yayımlama öncesi kontrol listesi |
+| `docs/` | Yayımlama öncesi kontrol listesi ve gerçek ekran görüntüleri |
 
 ## Gizlilik ve güvenlik
 

@@ -1,12 +1,13 @@
-# Checklist before switching GitHub repo to Public
+# Public yayımlama öncesi kontrol listesi
 
-- [x] Remove known vehicle VIN from tracked dashboard and packages.
-- [x] Exclude Apple Watch door-unlock automation and local credentials.
-- [x] Keep EPİAŞ sensor, script, automation and price cards optional.
-- [x] Include .gitignore and safe example credentials.
-- [x] Include local VIN configuration script.
-- [ ] Verify on a second, clean Home Assistant instance.
-- [ ] Confirm every required custom card, helper and SAIC entity mapping.
-- [ ] Review dynamic pricing/tax assumptions and license attribution.
-- [ ] Run GitHub secret scanning / inspect full git history before Public.
-- [ ] Review dashboard for additional personal data and external links.
+- [x] Bilinen gerçek VIN değerini kaynak dosyalardan kaldır.
+- [x] Kişisel kapı açma otomasyonunu ve giriş bilgilerini hariç tut.
+- [x] EPİAŞ betiği, sensörü, otomasyonu ve kartlarını isteğe bağlı tut.
+- [x] `.gitignore`, örnek yapılandırma ve yerel VIN aracını ekle.
+- [x] README ve EPİAŞ açıklamalarını Türkçeleştir.
+- [x] SAIC Python MQTT Gateway bağlantısını ve nanomad teşekkürünü belirt.
+- [ ] Temiz bir Home Assistant kurulumunda dene.
+- [ ] Özel kart bağımlılıklarını ve sensör eşleştirmelerini doğrula.
+- [ ] Elektrik tarifesi varsayımlarını ve lisans atıflarını incele.
+- [ ] GitHub gizli bilgi taraması ve Git geçmişini denetle.
+- [ ] Dashboard içinde kalan kişisel bilgi ve bağlantıları denetle.
