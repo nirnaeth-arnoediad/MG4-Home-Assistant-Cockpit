@@ -1,78 +1,75 @@
-"""Safely register the generated YAML dashboard in Home Assistant config.
+"""Register a storage dashboard through Home Assistant's Lovelace collection.
 
-Home Assistant does not automatically register a YAML dashboard just because a
-YAML file exists. This module adds a *new* dashboard entry only when the user
-has no top-level Lovelace configuration. It never modifies an existing Lovelace
-section, dashboard, or .storage file.
+No configuration.yaml or .storage files are edited directly.
+This uses HA internal collection APIs and requires validation on Core 2026.11.2.
 """
 from __future__ import annotations
-
 import logging
-import os
 from pathlib import Path
-import re
+import yaml
 
 _LOGGER = logging.getLogger(__name__)
-DASHBOARD_FILENAME = "mg4_cockpit_dashboard.yaml"
 DASHBOARD_URL = "mg4-cockpit-hacs"
-_DASHBOARD_CONFIG = """
-# MG4 Cockpit (HACS) - otomatik pano kaydi
-lovelace:
-  dashboards:
-    mg4-cockpit-hacs:
-      mode: yaml
-      filename: mg4_cockpit_dashboard.yaml
-      title: MG4 Cockpit (HACS)
-      icon: mdi:car-electric
-      show_in_sidebar: true
-"""
-_TOP_LEVEL_LOVELACE = re.compile(r"^(?:lovelace|['\"]lovelace['\"])\s*:", re.MULTILINE)
+DASHBOARD_FILENAME = "mg4_cockpit_dashboard.yaml"
 
+async def register_dashboard(hass):
+    from homeassistant.components import frontend
+    from homeassistant.components.lovelace import LOVELACE_DATA
+    from homeassistant.components.lovelace.dashboard import DashboardsCollection, LovelaceStorage
 
-def register_dashboard(config_dir: str) -> str:
-    """Register dashboard for the next HA restart; preserve all user settings.
-
-    Returns one of: added, existing_lovelace, missing_dashboard,
-    missing_configuration. An existing Lovelace section is never edited because
-    it may be a YAML include or have unrelated user dashboards/resources.
-    """
-    root = Path(config_dir)
-    dashboard = root / DASHBOARD_FILENAME
-    config = root / "configuration.yaml"
-    if not dashboard.is_file():
+    path = Path(hass.config.config_dir) / DASHBOARD_FILENAME
+    if not path.is_file():
+        _LOGGER.warning("MG4 Cockpit pano dosyası bulunamadı: %s", path)
         return "missing_dashboard"
-    if not config.is_file():
-        return "missing_configuration"
-    original = config.read_text(encoding="utf-8-sig")
-    if _TOP_LEVEL_LOVELACE.search(original):
-        return "existing_lovelace"
 
-    # The backup is created only once; never overwrite a previous backup.
-    backup = root / "configuration.yaml.mg4_cockpit_backup"
-    try:
-        with backup.open("x", encoding="utf-8") as handle:
-            handle.write(original)
-            handle.flush()
-            os.fsync(handle.fileno())
-    except FileExistsError:
-        pass
+    lovelace = hass.data.get(LOVELACE_DATA)
+    if lovelace is None:
+        _LOGGER.warning("MG4 Cockpit: Lovelace henüz hazır değil")
+        return "lovelace_not_ready"
+    # v0.4 installed a YAML panel at this same URL. Do not overwrite or
+    # remove that user's configuration. Explicit migration is required.
+    if frontend.async_panel_exists(hass, DASHBOARD_URL):
+        return "existing_panel"
 
-    # Keep the original file, ownership, and permissions intact.
-    suffix = "" if not original or original.endswith("\n") else "\n"
-    content = suffix + _DASHBOARD_CONFIG
-    original_size = config.stat().st_size
-    try:
-        with config.open("a", encoding="utf-8") as handle:
-            handle.write(content)
-            handle.flush()
-            os.fsync(handle.fileno())
-    except Exception:
-        # Restore only the bytes added by this operation when possible.
-        with config.open("r+b") as handle:
-            handle.truncate(original_size)
-        raise
-    _LOGGER.warning(
-        "MG4 Cockpit dashboard registered in configuration.yaml; "
-        "restart Home Assistant to show it in the sidebar"
-    )
-    return "added"
+    def load_yaml():
+        with path.open(encoding="utf-8") as stream:
+            return yaml.safe_load(stream)
+    config = await hass.async_add_executor_job(load_yaml)
+    if not isinstance(config, dict) or not isinstance(config.get("views"), list):
+        raise ValueError("MG4 Cockpit dashboard YAML must contain views")
+
+    collection = DashboardsCollection(hass)
+    await collection.async_load()
+    existing = next((item for item in collection.async_items()
+                     if item.get("url_path") == DASHBOARD_URL), None)
+    if existing is not None:
+        return "existing_storage"
+
+    # Register a listener before creation so the sidebar appears immediately.
+    async def changed(change_type, item_id, item):
+        if item.get("url_path") != DASHBOARD_URL:
+            return
+        if change_type == "added":
+            lovelace.dashboards[DASHBOARD_URL] = LovelaceStorage(hass, item)
+            frontend.async_register_built_in_panel(
+                hass, "lovelace", frontend_url_path=DASHBOARD_URL,
+                require_admin=False, show_in_sidebar=True,
+                sidebar_title="MG4 Cockpit (HACS)",
+                sidebar_icon="mdi:car-electric", config={"mode": "storage"})
+    # HA collection event constants can differ; explicitly register the
+    # panel after creation below instead of relying on event notifications.
+    item = await collection.async_create_item({
+        "url_path": DASHBOARD_URL, "title": "MG4 Cockpit (HACS)",
+        "icon": "mdi:car-electric", "show_in_sidebar": True,
+        "require_admin": False,
+    })
+    store = LovelaceStorage(hass, item)
+    await store.async_save(config)
+    lovelace.dashboards[DASHBOARD_URL] = store
+    if not frontend.async_panel_exists(hass, DASHBOARD_URL):
+        frontend.async_register_built_in_panel(
+            hass, "lovelace", frontend_url_path=DASHBOARD_URL,
+            require_admin=False, show_in_sidebar=True,
+            sidebar_title="MG4 Cockpit (HACS)",
+            sidebar_icon="mdi:car-electric", config={"mode": "storage"})
+    return "created"

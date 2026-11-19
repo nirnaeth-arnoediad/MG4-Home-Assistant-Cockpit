@@ -17,30 +17,20 @@ MG4 Cockpit, SAIC iSmart MQTT Gateway ile Home Assistant'a aktarılan araç bilg
 - Dashboard için şu HACS frontend kartları gerekli: `button-card`, `mushroom`, `apexcharts-card`, `config-template-card`, `ha-openfreemap-card`.
 - Home Assistant yapılandırmasının tam yedeğini alın. **Aynı MG4 paketlerini zaten kullanan sisteme paralel kurmayın.**
 
-## HACS ile kurulum (mevcut test sürümü)
+## HACS ile kurulum (v0.5 beta)
 
-1. HACS / Marketplace → Özel depolar → `https://github.com/nirnaeth-arnoediad/MG4-Home-Assistant-Cockpit` → **Integration** kategorisi → Ekle.
-2. HACS'ten MG4 Cockpit'i indirin ve Home Assistant'ı yeniden başlatın.
-3. Ayarlar → Cihazlar ve Hizmetler → Entegrasyon ekle → **MG4 Cockpit Kurulum**.
-4. Gateway'in oluşturduğu VIN algılanırsa listeden aracı seçin; algılanmazsa VIN'i elle girin.
-5. Entegrasyon, `/config/packages/mg4_cockpit_*.yaml` dosyalarını ve `/config/mg4_cockpit_dashboard.yaml` dosyasını oluşturur. **Var olan dosyaların üzerine yazmaz.**
-6. `/config/configuration.yaml` içinde `homeassistant:` bölümünde `packages: !include_dir_named packages` yapılandırması yoksa mevcut ayarlarınızla birleştirerek ekleyin. Dosyanın başına ikinci bir `homeassistant:` anahtarı eklemeyin.
-7. **Dashboard otomatik kaydedilir:** `/config/configuration.yaml` içinde henüz `lovelace:` bölümü yoksa kurulum bileşeni yalnızca yeni bir `MG4 Cockpit (HACS)` YAML panosu tanımlar. `configuration.yaml.mg4_cockpit_backup` adlı yerel yedek oluşturur. Var olan panoları değiştirmez. **Dashboardun sol menüde görünmesi için Home Assistant'ı yeniden başlatın.**
-8. Dashboard için gereken özel kartları HACS üzerinden kurun ve 7 sekmenin açıldığını kontrol edin.
+1. HACS / Marketplace üzerinden depoyu **Integration** olarak ekle ve MG4 Cockpit'i indir.
+2. Home Assistant'ı yeniden başlat. Ayarlar → Cihazlar ve Hizmetler → Entegrasyon ekle → MG4 Cockpit Kurulum.
+3. Aracını seç. Entegrasyon, MG4 dosyalarını hazırlar ve **MG4 Cockpit (HACS)** panosunu sol menüye eklemeyi dener.
+4. Gerekli özel kartların (`button-card`, `mushroom`, `apexcharts-card`, `config-template-card`, `ha-openfreemap-card`) yüklü olduğunu kontrol et.
 
-### Daha önce beta sürümünü kuranlar
+`configuration.yaml` dosyasına pano kaydı eklenmez. MG4 paketlerinin çalışması için Home Assistant'ta `homeassistant.packages` ayarı **önceden etkin** olmalıdır; bu sürüm o ayarı da değiştirmez. İlk kurulumda üretilen YAML paketleri için yeniden başlatma gerekebilir. EPİAŞ isteğe bağlıdır.
 
-- GitHub'da güncel dosyaları `main` dalına yükleyin, HACS'ten MG4 Cockpit'i güncelleyin ve Home Assistant'ı yeniden başlatın.
-- Var olan entegrasyon kaydı açıldığında pano kaydı denenir; `/config/mg4_cockpit_dashboard.yaml` dosyası zaten varsa yeniden üretilmez veya üzerine yazılmaz.
-- Pano kaydı eklendiyse **bir kez daha yeniden başlatın**. Eski MG4 dashboardunu silmeyin.
+### v0.4 sürümünden yükseltme
 
-### Otomatik kaydın güvenlik sınırı
+v0.4'ün `configuration.yaml` dosyasına eklediği `lovelace: dashboards: mg4-cockpit-hacs:` kaydı **otomatik silinmez**. Kayıt duruyorsa v0.5 aynı adresi kullanarak ikinci pano oluşturmaz. Geçişten önce Home Assistant yedeği alıp yalnızca v0.4'ün eklediği MG4 pano tanımını elle kaldırmak ve Home Assistant'ı yeniden başlatmak gerekir. Diğer `lovelace` ayarlarına dokunma. Eski pano ve paket dosyalarını silme.
 
-- `configuration.yaml` içinde **zaten `lovelace:` bölümü varsa** kurulum bu bölümü değiştirmez. Kullanıcıya özel kaynaklar, panolar veya `!include` kullanımı korunur. Bu durumda pano kaydı için mevcut Lovelace ayarlarıyla birleştirme gerekir.
-- `configuration.yaml` yoksa veya dashboard dosyası eksikse hiçbir ayar yazılmaz.
-- HACS, `button-card`, `mushroom`, `apexcharts-card`, `config-template-card`, `ha-openfreemap-card` bağımlılıklarını bu sürümde otomatik kurmaz.
-- Mevcut `packages` ayarını otomatik değiştirmez. `/config/packages` klasörünün `homeassistant.packages` altında tanımlı olması gerekir.
-- EPİAŞ isteğe bağlıdır ve otomatik kurulmaz.
+**Beta notu:** Depolama tabanlı otomatik pano kaydı, Home Assistant Core 2026.11.2 üzerinde henüz gerçek sistem testi görmedi. Home Assistant'ın dahili API'lerine dayanır; sürümler arasında değişebilir. Pano oluşmazsa günlükleri kontrol et.
 
 ## Güvenlik
 
