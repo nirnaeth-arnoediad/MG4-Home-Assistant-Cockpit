@@ -24,5 +24,41 @@
     "abort": {
       "already_configured": "MG4 Cockpit zaten yapılandırılmış"
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "MG4 Cockpit güncellemeleri",
+        "description": "{message}",
+        "data": {
+          "action": "Ne yapmak istiyorsun?"
+        },
+        "data_description": {
+          "action": "Güncelle veya son yedeğe dön"
+        }
+      },
+      "confirm": {
+        "title": "Güncellemeyi onayla",
+        "description": "{message}",
+        "data": {
+          "confirm": "Mevcut panonun ve paketlerin yedeklenip güncellenmesini onaylıyorum"
+        }
+      },
+      "rollback": {
+        "title": "Son yedeğe dön",
+        "description": "Son güncellemeden önceki pano ve YAML dosyaları geri yüklenecek.",
+        "data": {
+          "confirm": "Yedekten geri yüklemeyi onaylıyorum"
+        }
+      }
+    },
+    "error": {
+      "update_failed": "Güncelleme başarısız. Mevcut dosyalar korunmaya çalışıldı; günlükleri kontrol et.",
+      "rollback_failed": "Geri yükleme başarısız; günlükleri kontrol et."
+    },
+    "abort": {
+      "missing_files": "MG4 kurulum dosyaları eksik.",
+      "cancelled": "İşlem iptal edildi."
+    }
   }
 }

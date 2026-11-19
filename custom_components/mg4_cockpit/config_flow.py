@@ -7,12 +7,17 @@ from homeassistant.components import persistent_notification
 from homeassistant.helpers import selector
 from .discovery import find_vehicles
 from .installer import ExistingFilesError, prepare_files, VIN_RE
+from .update_manager import status, apply_update, rollback, establish_baseline
 
 _LOGGER = logging.getLogger(__name__)
 DOMAIN = "mg4_cockpit"
 
 class MG4CockpitConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
+
+    @staticmethod
+    def async_get_options_flow(config_entry):
+        return MG4CockpitOptionsFlow()
 
     async def async_step_user(self, user_input=None):
         await self.async_set_unique_id("mg4_cockpit_installation")
@@ -65,8 +70,68 @@ class MG4CockpitConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 notification_id="mg4_cockpit_restart_required",
             )
             # Do not store VIN in the config entry; it is present in the generated local YAML.
+            # Fresh install: save the generated files as the initial baseline.
+            await establish_baseline(self.hass)
             return self.async_create_entry(title="MG4 Cockpit Kurulum", data={})
         if step_id == "vehicle":
             vehicles = find_vehicles(self.hass)
             return self.async_show_form(step_id="vehicle", data_schema=vol.Schema({vol.Required("vehicle"): selector.SelectSelector(selector.SelectSelectorConfig(options=vehicles, mode=selector.SelectSelectorMode.DROPDOWN))}), errors={"base": error})
         return self.async_show_form(step_id="manual", data_schema=vol.Schema({vol.Required("vin"): str}), errors={"base": error})
+
+
+class MG4CockpitOptionsFlow(config_entries.OptionsFlow):
+    """User approval is mandatory for update and rollback."""
+
+    async def async_step_init(self, user_input=None):
+        info = await status(self.hass)
+        if user_input is not None:
+            action = user_input.get("action")
+            if action == "update":
+                return await self.async_step_confirm()
+            if action == "rollback":
+                return await self.async_step_rollback()
+            return self.async_create_entry(title="", data={})
+        actions = ["update"]
+        if info.get("last_backup"):
+            actions.append("rollback")
+        description = "Mevcut pano ve paketler korunuyor. Güncelleme yalnızca onayından sonra yapılır."
+        if not info.get("ready"):
+            description = "Kurulum dosyaları eksik. Güncelleme yapmadan önce dosyaları kontrol et."
+        elif info.get("unverified"):
+            description = "Bu kurulum eski sürümden geldiği için önceki dosya değişiklikleri doğrulanamıyor. Güncelleme, kişisel düzenlemelerini değiştirebilir. Önce yedek alınacak."
+        elif info.get("ui_modified"):
+            description = "Panonu Home Assistant üzerinden değiştirmişsin. Güncelleme mevcut düzenini yedekleyip yeni sürümle değiştirecek."
+        elif info.get("modified"):
+            description = "Bazı dosyaları kurulumdan sonra değiştirmişsin. Güncelleme bunların üzerine yazacak; önce yedek alınacak."
+        elif not info.get("available"):
+            description = "Yerel YAML dosyaları bu sürümle aynı. Yine de panoyu yenilemek istersen onay verebilirsin."
+        return self.async_show_form(step_id="init", description_placeholders={"message": description}, data_schema=vol.Schema({vol.Required("action"): vol.In(actions)}))
+
+    async def async_step_confirm(self, user_input=None):
+        info = await status(self.hass)
+        if not info.get("ready"):
+            return self.async_abort(reason="missing_files")
+        if user_input is not None:
+            if not user_input.get("confirm"):
+                return self.async_abort(reason="cancelled")
+            try:
+                backup = await apply_update(self.hass)
+            except Exception:
+                _LOGGER.exception("MG4 Cockpit güncellemesi başarısız")
+                return self.async_show_form(step_id="confirm", data_schema=vol.Schema({vol.Required("confirm", default=False): bool}), errors={"base": "update_failed"})
+            from homeassistant.components import persistent_notification
+            persistent_notification.async_create(self.hass, "Pano güncellendi. Yedeğin /config/mg4_cockpit_backups/ klasörüne kaydedildi. Yeni YAML sensörleri için Home Assistant'ı yeniden başlatman gerekebilir.", title="MG4 Cockpit güncellendi", notification_id="mg4_cockpit_update")
+            return self.async_create_entry(title="", data={"last_action": "update", "backup": backup})
+        return self.async_show_form(step_id="confirm", data_schema=vol.Schema({vol.Required("confirm", default=False): bool}), description_placeholders={"message": "Pano ve beş YAML paketi güncellenecek. Kullanıcı değişiklikleri varsa yedeklenip yeni sürümle değiştirilecek."})
+
+    async def async_step_rollback(self, user_input=None):
+        if user_input is not None:
+            if not user_input.get("confirm"):
+                return self.async_abort(reason="cancelled")
+            try:
+                await rollback(self.hass)
+            except Exception:
+                _LOGGER.exception("MG4 Cockpit geri dönüş başarısız")
+                return self.async_show_form(step_id="rollback", data_schema=vol.Schema({vol.Required("confirm", default=False): bool}), errors={"base": "rollback_failed"})
+            return self.async_create_entry(title="", data={"last_action": "rollback"})
+        return self.async_show_form(step_id="rollback", data_schema=vol.Schema({vol.Required("confirm", default=False): bool}))

@@ -56,3 +56,21 @@ HACS üzerinden indirdikten sonra Home Assistant'ı yeniden başlatın ve MG4 Co
 ### İsteğe bağlı EPİAŞ
 
 EPİAŞ sensörü `sensor.epias_guncel_ptf_kwh_2` mevcut ve kullanılabilir olduğunda Güncel PTF ve buna bağlı tahmini fiyat kartları gösterilir. Sensör yoksa veya `unknown` / `unavailable` durumundaysa ilgili kartlar gizlenir. Bu koşul yalnızca yeni oluşturulan dashboard için geçerlidir; daha önce oluşturulmuş UI panoları otomatik olarak değiştirilmez.
+
+
+## v0.6 — Onaylı güncelleme (beta)
+
+HACS güncellemesi mevcut UI panosunu veya kullanıcı YAML dosyalarını kendiliğinden değiştirmez.
+Home Assistant yeniden başladıktan sonra güncelleme varsa bildirim görünür.
+**Ayarlar → Cihazlar ve Hizmetler → MG4 Cockpit Kurulum → Yapılandır** menüsünden
+**Güncelle** seçilir ve ikinci ekranda açık onay verilir. Önce mevcut UI pano
+yapılandırması ve altı yerel YAML dosyası `/config/mg4_cockpit_backups/` altında
+yedeklenir. Aynı menüden **Son yedeğe dön** kullanılabilir.
+
+**Dikkat:** Güncelleme, kullanıcı tarafından düzenlenmiş pano ve MG4 paketlerinin
+yerine yeni sürümü koyar; değişiklikler yedekte saklanır, otomatik birleştirilmez.
+Eski sürümden gelen kurulumlarda önceki değişikliklerin kaynağı doğrulanamayabilir.
+EPİAŞ dosyalarına ve `configuration.yaml` dosyasına dokunulmaz.
+Yeni YAML sensörlerinin etkinleşmesi için yeniden başlatma gerekebilir.
+
+Bu sürüm deneysel olup Home Assistant Core 2026.11.2 üzerinde canlı test gerektirir.
