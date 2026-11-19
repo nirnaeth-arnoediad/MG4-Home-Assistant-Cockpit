@@ -1,6 +1,6 @@
 # MG4 Cockpit · HACS kurulum test sürümü
 
-> **Deneysel sürüm:** Home Assistant üzerinde uçtan uca test edilmedi. Bu sürümü ana GitHub deponuzun `main` dalına henüz yüklemeyin. Tam yedek almadan kurmayın.
+> **Deneysel sürüm:** Otomatik dashboard kaydı kodlandı ve yerel testlerden geçti; gerçek Home Assistant üzerinde henüz doğrulanmadı. Mevcut yapılandırmanızı yedekleyin.
 
 ![Gerçek MG4 Cockpit ekranı](docs/images/kokpit.png)
 
@@ -19,28 +19,28 @@ MG4 Cockpit, SAIC iSmart MQTT Gateway ile Home Assistant'a aktarılan araç bilg
 
 ## HACS ile kurulum (mevcut test sürümü)
 
-1. Bu depoyu GitHub'a **ayrı bir test deposu** olarak yükleyin. HACS → Özel depolar → depo URL'si → **Integration** kategorisi → Ekle.
+1. HACS / Marketplace → Özel depolar → `https://github.com/nirnaeth-arnoediad/MG4-Home-Assistant-Cockpit` → **Integration** kategorisi → Ekle.
 2. HACS'ten MG4 Cockpit'i indirin ve Home Assistant'ı yeniden başlatın.
 3. Ayarlar → Cihazlar ve Hizmetler → Entegrasyon ekle → **MG4 Cockpit Kurulum**.
 4. Gateway'in oluşturduğu VIN algılanırsa listeden aracı seçin; algılanmazsa VIN'i elle girin.
 5. Entegrasyon, `/config/packages/mg4_cockpit_*.yaml` dosyalarını ve `/config/mg4_cockpit_dashboard.yaml` dosyasını oluşturur. **Var olan dosyaların üzerine yazmaz.**
 6. `/config/configuration.yaml` içinde `homeassistant:` bölümünde `packages: !include_dir_named packages` yapılandırması yoksa mevcut ayarlarınızla birleştirerek ekleyin. Dosyanın başına ikinci bir `homeassistant:` anahtarı eklemeyin.
-7. Ayarlar → Panolar → Pano ekle → YAML pano kullanıyorsanız yapılandırmanıza aşağıdaki örneği, **mevcut `lovelace:` ayarlarınızla birleştirerek** ekleyin:
+7. **Dashboard otomatik kaydedilir:** `/config/configuration.yaml` içinde henüz `lovelace:` bölümü yoksa kurulum bileşeni yalnızca yeni bir `MG4 Cockpit (HACS)` YAML panosu tanımlar. `configuration.yaml.mg4_cockpit_backup` adlı yerel yedek oluşturur. Var olan panoları değiştirmez. **Dashboardun sol menüde görünmesi için Home Assistant'ı yeniden başlatın.**
+8. Dashboard için gereken özel kartları HACS üzerinden kurun ve 7 sekmenin açıldığını kontrol edin.
 
-```yaml
-lovelace:
-  dashboards:
-    mg4-cockpit:
-      mode: yaml
-      title: MG4 Cockpit
-      icon: mdi:car-electric
-      show_in_sidebar: true
-      filename: mg4_cockpit_dashboard.yaml
-```
+### Daha önce beta sürümünü kuranlar
 
-8. Gerekli özel kartları HACS'ten kurun. Home Assistant yapılandırmasını kontrol edin ve yeniden başlatın.
+- GitHub'da güncel dosyaları `main` dalına yükleyin, HACS'ten MG4 Cockpit'i güncelleyin ve Home Assistant'ı yeniden başlatın.
+- Var olan entegrasyon kaydı açıldığında pano kaydı denenir; `/config/mg4_cockpit_dashboard.yaml` dosyası zaten varsa yeniden üretilmez veya üzerine yazılmaz.
+- Pano kaydı eklendiyse **bir kez daha yeniden başlatın**. Eski MG4 dashboardunu silmeyin.
 
-**Henüz otomatik olmayan adımlar:** `configuration.yaml` içindeki packages etkinleştirme, dashboard kaydı ve özel kart kurulumu. HACS bunları tek başına yapmaz. Bu sürümün tüm kurulumunu üç tıklamayla tamamladığını iddia etmiyoruz.
+### Otomatik kaydın güvenlik sınırı
+
+- `configuration.yaml` içinde **zaten `lovelace:` bölümü varsa** kurulum bu bölümü değiştirmez. Kullanıcıya özel kaynaklar, panolar veya `!include` kullanımı korunur. Bu durumda pano kaydı için mevcut Lovelace ayarlarıyla birleştirme gerekir.
+- `configuration.yaml` yoksa veya dashboard dosyası eksikse hiçbir ayar yazılmaz.
+- HACS, `button-card`, `mushroom`, `apexcharts-card`, `config-template-card`, `ha-openfreemap-card` bağımlılıklarını bu sürümde otomatik kurmaz.
+- Mevcut `packages` ayarını otomatik değiştirmez. `/config/packages` klasörünün `homeassistant.packages` altında tanımlı olması gerekir.
+- EPİAŞ isteğe bağlıdır ve otomatik kurulmaz.
 
 ## Güvenlik
 

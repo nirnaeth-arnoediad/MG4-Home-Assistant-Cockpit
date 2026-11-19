@@ -1,14 +1,14 @@
-# İlk Home Assistant testi
+# HACS 0.4.0-beta.1 — Otomatik dashboard test planı
 
-**Önce tam yedek alın.** Testi temiz bir Home Assistant örneğinde gerçekleştirin; SAIC Gateway ve MQTT Discovery kurulu olmalı.
+**Ön koşul:** Mevcut MG4 Cockpit entegrasyonu çalışıyor ve `/config/mg4_cockpit_dashboard.yaml` dosyası mevcut. Önce `configuration.yaml` dosyasını yedekleyin.
 
-1. HACS özel depo olarak yükleme ve HA yeniden başlatma.
-2. Entegrasyon ekleme ekranında MG4 VIN'inin algılanması; algılanmazsa manuel VIN ile devam.
-3. `/config/packages` içinde beş dosya ve `/config/mg4_cockpit_dashboard.yaml` oluştuğunu doğrulama.
-4. `configuration.yaml` içinde packages ve YAML dashboard tanımlarını etkinleştirme; config kontrolü.
-5. Özel kartların HACS'ten kurulması, dashboardun 7 sekmesinin açılması.
-6. Kontrollerin doğru araçla eşleştiğini doğrulama; **aracı etkileyen komutları yalnızca güvenli koşullarda deneyin**.
-7. Aynı kurulumun tekrar denenmesinde mevcut dosyaların üzerine yazılmadığını doğrulama.
-8. HA günlüklerinde hata ve eksik varlık kontrolü; analiz verilerinin birikmesini bekleme.
+1. `main` dalına güncel dosyaları yükleyin, HACS üzerinden güncelleyin, Home Assistant'ı yeniden başlatın.
+2. `/config/configuration.yaml` içinde `lovelace:` yoksa entegrasyonun `mg4-cockpit-hacs` panosunu otomatik eklediğini doğrulayın.
+3. `/config/configuration.yaml.mg4_cockpit_backup` dosyasının oluştuğunu doğrulayın.
+4. Home Assistant yapılandırma kontrolünü çalıştırın. Hata yoksa yeniden başlatın.
+5. Sol menüde `MG4 Cockpit (HACS)` panosunu ve yedi sekmeyi doğrulayın.
+6. Yeniden başlatma sonrasında `lovelace:` bölümünün iki kez eklenmediğini doğrulayın.
+7. Eski dashboardların, EPİAŞ sensörünün ve SAIC Gateway'in etkilenmediğini kontrol edin.
+8. Özel kart eksikse HACS'ten kurun; bu entegrasyon özel kartları otomatik kurmaz.
 
-Bu sürüm **tam otomatik HACS kurulumu değildir**. Dashboard ve packages yapılandırması manuel kaldığı için başarı kriteri tüm dosyaların sorunsuz kurulması ve dashboardun açılmasıdır.
+**Beklenen güvenli davranış:** Mevcut bir `lovelace:` bölümü varsa dosya değiştirilmez; günlükte uyarı görünür. Otomatik pano kaydı gerçek Home Assistant üzerinde henüz test edilmemiştir.
