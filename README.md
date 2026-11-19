@@ -1,119 +1,55 @@
-# MG4 Home Assistant Cockpit
+# MG4 Cockpit · HACS kurulum test sürümü
 
-MG4 elektrikli araç için Home Assistant üzerinde geliştirilmiş, Türkçe bir kontrol ve analiz panelidir. Batarya durumu, menzil, şarj yönetimi, konfor kontrolleri ve sürüş analizlerini tek arayüzde toplar.
+> **Deneysel sürüm:** Home Assistant üzerinde uçtan uca test edilmedi. Bu sürümü ana GitHub deponuzun `main` dalına henüz yüklemeyin. Tam yedek almadan kurmayın.
 
-> **Durum:** Deneysel YAML sürümü. Farklı Home Assistant kurulumlarında sensör adları ve özel kart bağımlılıkları değişebilir. HACS ile otomatik kurulum henüz yayımlanmamıştır. Kurulumdan önce yapılandırmanızı yedekleyin.
+![Gerçek MG4 Cockpit ekranı](docs/images/kokpit.png)
 
-## Ekran görüntüleri ve proje tanıtımı
+MG4 Cockpit, SAIC iSmart MQTT Gateway ile Home Assistant'a aktarılan araç bilgilerini tek panelde birleştirir. Kokpit, şarj yönetimi, klima/konfor, araç durumu, konum, sürüş analizi ve sistem izleme ekranlarını içerir. Görseller gerçek Home Assistant ekran görüntüleridir; konum görseli gizlilik için bulanıklaştırılmıştır.
 
-MG4 Cockpit, araç bilgilerini Home Assistant üzerinde yedi sekmede bir araya getirir. Aşağıdaki görseller, çalışan sistemden alınmış **gerçek mobil ekran görüntüleridir**. Görüntülerdeki değerler örnektir; veri kullanılabilirliği gateway'e, araç durumuna ve Home Assistant yapılandırmasına bağlıdır.
+| Kokpit | Şarj | Analiz |
+|---|---|---|
+| ![Kokpit](docs/images/kokpit.png) | ![Şarj](docs/images/sarj.png) | ![Analiz](docs/images/menzil-analizi.png) |
 
-### Kokpit · Tek ekranda araç özeti
+## Ön koşullar
 
-Batarya doluluk oranı, tahmini menzil, araç durumu, kilitler, sıcaklık ve temel araç bilgileri.
+- Home Assistant ve HACS kurulu olmalı.
+- [SAIC Python MQTT Gateway](https://github.com/SAIC-iSmart-API/saic-python-mqtt-gateway) kurulmuş, MQTT Discovery ile araç varlıkları Home Assistant'ta görünür olmalı.
+- Dashboard için şu HACS frontend kartları gerekli: `button-card`, `mushroom`, `apexcharts-card`, `config-template-card`, `ha-openfreemap-card`.
+- Home Assistant yapılandırmasının tam yedeğini alın. **Aynı MG4 paketlerini zaten kullanan sisteme paralel kurmayın.**
 
-<img src="docs/images/kokpit.png" alt="MG4 Cockpit batarya ve araç özeti" width="340">
+## HACS ile kurulum (mevcut test sürümü)
 
-### Enerji · Şarj kontrolü ve izleme
+1. Bu depoyu GitHub'a **ayrı bir test deposu** olarak yükleyin. HACS → Özel depolar → depo URL'si → **Integration** kategorisi → Ekle.
+2. HACS'ten MG4 Cockpit'i indirin ve Home Assistant'ı yeniden başlatın.
+3. Ayarlar → Cihazlar ve Hizmetler → Entegrasyon ekle → **MG4 Cockpit Kurulum**.
+4. Gateway'in oluşturduğu VIN algılanırsa listeden aracı seçin; algılanmazsa VIN'i elle girin.
+5. Entegrasyon, `/config/packages/mg4_cockpit_*.yaml` dosyalarını ve `/config/mg4_cockpit_dashboard.yaml` dosyasını oluşturur. **Var olan dosyaların üzerine yazmaz.**
+6. `/config/configuration.yaml` içinde `homeassistant:` bölümünde `packages: !include_dir_named packages` yapılandırması yoksa mevcut ayarlarınızla birleştirerek ekleyin. Dosyanın başına ikinci bir `homeassistant:` anahtarı eklemeyin.
+7. Ayarlar → Panolar → Pano ekle → YAML pano kullanıyorsanız yapılandırmanıza aşağıdaki örneği, **mevcut `lovelace:` ayarlarınızla birleştirerek** ekleyin:
 
-Şarj başlatma/durdurma, soket kilidi, şarj sınırı, akım seçimi ve canlı şarj ölçümleri. EPİAŞ PTF ve tahmini fiyat kartları **isteğe bağlı modüldür**; gösterilen maliyet hesabı varsayımsaldır.
+```yaml
+lovelace:
+  dashboards:
+    mg4-cockpit:
+      mode: yaml
+      title: MG4 Cockpit
+      icon: mdi:car-electric
+      show_in_sidebar: true
+      filename: mg4_cockpit_dashboard.yaml
+```
 
-<img src="docs/images/sarj.png" alt="MG4 şarj kontrolleri ve EPİAŞ isteğe bağlı fiyat kartları" width="340">
+8. Gerekli özel kartları HACS'ten kurun. Home Assistant yapılandırmasını kontrol edin ve yeniden başlatın.
 
-### Planlar · Şarj ve batarya ön ısıtma
+**Henüz otomatik olmayan adımlar:** `configuration.yaml` içindeki packages etkinleştirme, dashboard kaydı ve özel kart kurulumu. HACS bunları tek başına yapmaz. Bu sürümün tüm kurulumunu üç tıklamayla tamamladığını iddia etmiyoruz.
 
-Araçtaki şarj zamanlaması, plan modu ve batarya ön ısıtma durumu.
+## Güvenlik
 
-<img src="docs/images/planlama.png" alt="MG4 şarj ve batarya ısıtma planları" width="340">
+- VIN yalnızca yerel üretilen YAML dosyalarında kullanılır. Bu dosyaları herkese açık GitHub deposuna yüklemeyin.
+- Kurulum sırasında mevcut YAML dosyalarının üzerine yazılmaz. Kısmi yazma hatasında yeni oluşturulan dosyalar geri alınır.
+- Entegrasyon kaldırılınca oluşturulmuş kullanıcı dosyaları otomatik silinmez.
+- Araç algılama mevcut Home Assistant varlık kayıtlarını okur; araca yeni veri sorgusu göndermez.
+- EPİAŞ isteğe bağlıdır; bu kurulum paketine otomatik dahil edilmez.
 
-### Konfor · Klima ve koltuk ısıtma
+## Kaynak ve teşekkür
 
-Kabin sıcaklığı, iklimlendirme ayarları ve koltuk ısıtma kontrolleri.
-
-<img src="docs/images/konfor.png" alt="MG4 iklimlendirme ve koltuk ısıtma" width="340">
-
-### Araç · Güvenlik ve durum
-
-Kapı, bagaj, kaput, cam ve lastik durumlarını tek sayfadan izleme.
-
-<img src="docs/images/arac.png" alt="MG4 kapılar camlar ve lastik durumları" width="340">
-
-### Konum · Son bilinen araç konumu
-
-Araçtan alınan son konum ve güncelleme zamanı. Harita **canlı takip veya geçmiş rota** anlamına gelmez. Gizlilik amacıyla ekran görüntüsündeki harita bulanıklaştırılmıştır.
-
-<img src="docs/images/konum.png" alt="MG4 son konum ekranı, harita gizlilik için bulanıklaştırılmış" width="340">
-
-### Analiz · Menzil tahmini doğruluğu
-
-Gösterge menzili ile gerçekleşen sürüş arasındaki sapma ve zaman içindeki doğruluk eğilimi.
-
-<img src="docs/images/menzil-analizi.png" alt="MG4 menzil sapması ve doğruluk analizi" width="340">
-
-### Analiz · Soğuk hava ve batarya eğilimi
-
-Soğuk ve ılık hava sürüşlerinin tüketim karşılaştırması ve yeterli veri toplandığında batarya performans eğilimi. **Bu gösterge gerçek batarya sağlığı (SoH) ölçümü değildir.**
-
-<img src="docs/images/batarya-analizi.png" alt="MG4 soğuk hava tüketim analizi ve veri eşikleri" width="340">
-
-### Sistem · Gateway ve veri durumu
-
-Son araç verileri, komut bildirimleri ve gateway yenileme ayarları; veri gecikmelerini ve bağlantı durumunu değerlendirmek için.
-
-<img src="docs/images/sistem.png" alt="MG4 gateway veri yenileme ve sistem durumu" width="340">
-
----
-
-## Araç ile iletişim
-
-Bu proje MG iSMART hesabından araç verilerini alabilmek ve Home Assistant'a MQTT üzerinden aktarabilmek için **[SAIC Python MQTT Gateway](https://github.com/SAIC-iSmart-API/saic-python-mqtt-gateway)** projesini kullanır.
-
-Gateway; araç verilerini MQTT üzerinden yayımlar ve Home Assistant MQTT Discovery ile sensör ve kontrol varlıklarının oluşmasını sağlar. Bu depo gateway'in yerine geçmez; onun sağladığı veriler üzerinde dashboard, yardımcı sensör ve otomasyonlar oluşturur.
-
-**Teşekkür:** SAIC Python MQTT Gateway projesinin geliştiricisi **nanomad** başta olmak üzere tüm katkıda bulunanlara teşekkür ederiz. Bu proje, onların sağladığı iletişim altyapısı sayesinde geliştirilmiştir.
-
-## Kodların hazırlanması
-
-Bu depodaki dashboard, YAML yardımcıları, analizler ve EPİAŞ entegrasyonunun proje özelindeki kodları, proje sahibinin gereksinimleri doğrultusunda **OpenAI ChatGPT (GPT-6) desteğiyle hazırlanmış ve düzenlenmiştir**. Testler ve işlevsel doğrulamalar proje sahibi tarafından kendi Home Assistant ortamında yürütülmüştür. SAIC Python MQTT Gateway ayrı bir açık kaynak projesidir; onun kodlarının yazarlığı bu depoya ait değildir.
-
-## Özellikler
-
-- MG4 batarya seviyesi, menzil ve araç durumu
-- Şarj planlaması ve şarj oturumu takibi
-- İklimlendirme ve batarya ön ısıtma kontrolleri
-- Sürüş ve tüketim analizleri
-- Türkçe durum göstergeleri
-- **İsteğe bağlı:** EPİAŞ saatlik PTF takibi ve tahmini enerji maliyeti
-
-## Kurulum
-
-1. Home Assistant sisteminizin yedeğini alın.
-2. [SAIC Python MQTT Gateway](https://github.com/SAIC-iSmart-API/saic-python-mqtt-gateway) kurulumunu tamamlayın. MQTT sensörlerinin Home Assistant'ta oluştuğunu doğrulayın.
-3. Dashboardun kullandığı özel kartların sisteminizde bulunduğundan emin olun. Sensör adları gateway sürümüne göre farklılık gösterebilir.
-4. Bilgisayarınızda `python3 tools/configure_vin.py --vin KENDI_17_HANELI_VIN --output local` komutunu çalıştırın. Oluşan `local/` klasörünü **GitHub'a yüklemeyin**.
-5. `local/packages/*.yaml` dosyalarını `/config/packages/` klasörüne kopyalamadan önce mevcut yardımcılar ve otomasyonlarla çakışmaları inceleyin. `homeassistant: packages: !include_dir_named packages` tanımını mevcut yapılandırmanızla birleştirin.
-6. `local/dashboards/mg4_cockpit.yaml` dosyasını YAML modundaki bir dashboarda aktarın. Gerektiğinde sensör adlarını uyarlayın.
-7. Home Assistant yapılandırmasını doğrulayın. Araç kontrol komutlarını dikkatli ve gözetim altında test edin.
-
-## EPİAŞ modülü (isteğe bağlı)
-
-EPİAŞ modülü Türkiye'deki kullanıcılar içindir ve ana dashboardun çalışması için zorunlu değildir. Betik, sensör, saatlik otomasyon ve ek fiyat kartları `epias/` klasöründe bulunur. Kurulum adımları: [EPİAŞ rehberi](epias/README.md).
-
-## Klasörler
-
-| Klasör | İçerik |
-|---|---|
-| `dashboards/` | MG4 kontrol paneli |
-| `packages/` | Yardımcı sensörler, sürüş analizleri ve otomasyonlar |
-| `epias/` | İsteğe bağlı elektrik fiyatı entegrasyonu |
-| `tools/` | VIN'i yalnızca yerel kopyalara uygulama aracı |
-| `examples/` | Örnek Home Assistant yapılandırmaları |
-| `docs/` | Yayımlama öncesi kontrol listesi ve gerçek ekran görüntüleri |
-
-## Gizlilik ve güvenlik
-
-Gerçek VIN, iSMART ve EPİAŞ giriş bilgileri, `secrets.yaml`, erişim anahtarları, konum geçmişi ve kişisel otomasyonlar GitHub'a yüklenmemelidir. Bu depodaki `YOUR_VIN` yer tutucusu gerçek VIN ile yalnızca yerel ortamda değiştirilmelidir.
-
-## Lisans
-
-Proje özelinde oluşturulan kodlar MIT lisansı ile sunulmuştur. Kullanılan üçüncü taraf yazılımlar ve özel Home Assistant kartları kendi lisanslarına tabidir. MG, SAIC veya EPİAŞ ile resmî bağlantısı yoktur.
+Araç iletişiminde [SAIC Python MQTT Gateway](https://github.com/SAIC-iSmart-API/saic-python-mqtt-gateway) kullanılır. Geliştirici **[nanomad](https://github.com/SAIC-iSmart-API/saic-python-mqtt-gateway/commits?author=nanomad)** ve katkıda bulunanlara teşekkürler. MG4 Cockpit'e özgü dashboard, YAML ve kurulum bileşeni proje sahibinin yönlendirmeleriyle ChatGPT yardımıyla hazırlanmıştır.

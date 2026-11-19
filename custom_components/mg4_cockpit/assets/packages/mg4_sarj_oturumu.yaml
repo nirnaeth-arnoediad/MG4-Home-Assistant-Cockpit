@@ -1,0 +1,61 @@
+
+input_datetime:
+  mg4_oturum_baslangic:
+    name: MG4 Oturum Başlangıcı
+    has_date: true
+    has_time: true
+
+  mg4_oturum_bitis:
+    name: MG4 Oturum Bitişi
+    has_date: true
+    has_time: true
+
+input_boolean:
+  mg4_oturum_aktif:
+    name: MG4 Şarj Oturumu Aktif
+    icon: mdi:ev-station
+
+automation:
+  - id: mg4_oturum_baslangic_kaydet
+    alias: "MG4 - Şarj oturumu başlangıcını kaydet"
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.YOUR_VIN_battery_charging
+        from: "off"
+        to: "on"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.mg4_oturum_aktif
+        state: "off"
+    actions:
+      - action: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.mg4_oturum_baslangic
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.mg4_oturum_aktif
+
+  - id: mg4_oturum_bitis_kaydet
+    alias: "MG4 - Şarj oturumu bitişini kaydet"
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.YOUR_VIN_battery_charging
+        to: "off"
+        for: "00:02:00"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.mg4_oturum_aktif
+        state: "on"
+    actions:
+      - action: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.mg4_oturum_bitis
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.mg4_oturum_aktif

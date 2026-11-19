@@ -1,0 +1,1816 @@
+title: MG4 Cockpit V5.6 · Üç yeni analiz
+views:
+- title: Kokpit
+  path: kokpit
+  icon: mdi:car-electric
+  type: sections
+  max_columns: 1
+  sections:
+  - type: grid
+    cards:
+    - type: heading
+      heading: MG4 Luxury · 2023
+      heading_style: title
+    - type: conditional
+      conditions:
+      - entity: input_boolean.mg4_bildirim_goster
+        state: 'on'
+      grid_options:
+        columns: full
+      card:
+        type: custom:button-card
+        entity: input_text.mg4_son_bildirim
+        show_icon: true
+        icon: mdi:message-check-outline
+        show_name: true
+        name: MG4 · İşlem bildirimi  ·  Kapatmak için dokun
+        show_state: true
+        show_label: false
+        tap_action:
+          action: call-service
+          service: input_boolean.turn_off
+          service_data:
+            entity_id: input_boolean.mg4_bildirim_goster
+        hold_action:
+          action: none
+        styles:
+          card:
+          - padding: 16px
+          - border-radius: 18px
+          - background: linear-gradient(115deg,rgba(27,43,54,.98),rgba(18,25,32,.98))
+          - border: 1px solid rgba(99,219,177,.5)
+          - box-shadow: 0 8px 24px rgba(0,0,0,.2)
+          - color: '#f4f7fa'
+          grid:
+          - grid-template-areas: '"i n" "i s"'
+          - grid-template-columns: 34px minmax(0,1fr)
+          - grid-template-rows: auto auto
+          - column-gap: 10px
+          - row-gap: 6px
+          icon:
+          - color: '#63dbb1'
+          - width: 25px
+          name:
+          - font-size: 12px
+          - font-weight: '600'
+          - opacity: '0.7'
+          - justify-self: start
+          - white-space: normal
+          - text-align: left
+          state:
+          - font-size: 14px
+          - white-space: normal
+          - overflow: visible
+          - text-overflow: clip
+          - word-break: break-word
+          - text-align: left
+          - justify-self: stretch
+    - type: custom:button-card
+      entity: sensor.lsjwh4096pn255997_soc
+      triggers_update:
+      - sensor.lsjwh4096pn255997_soc
+      - binary_sensor.lsjwh4096pn255997_battery_charging
+      show_icon: false
+      show_name: false
+      show_state: false
+      styles:
+        card:
+        - border-radius: 20px
+        - padding: 20px
+        - background: linear-gradient(135deg,#1b2934,#10171f)
+        - color: white
+        - box-shadow: none
+        grid:
+        - grid-template-areas: '"label label" "soc range" "bar bar"'
+        - grid-template-columns: 1fr 1fr
+        - grid-template-rows: auto auto auto
+        - column-gap: 10px
+        - row-gap: 12px
+        custom_fields:
+          label:
+          - grid-area: label
+          - justify-self: start
+          - font-size: 12px
+          - letter-spacing: 1.5px
+          - opacity: '0.7'
+          soc:
+          - grid-area: soc
+          - justify-self: start
+          - font-size: 40px
+          - font-weight: '700'
+          - line-height: '1.1'
+          range:
+          - grid-area: range
+          - justify-self: end
+          - align-self: end
+          - font-size: 17px
+          bar:
+          - grid-area: bar
+          - width: 100%
+      custom_fields:
+        label: BATARYA DURUMU
+        soc: '[[[ const n=Number(entity?.state); return Number.isFinite(n) && ![''unknown'',''unavailable''].includes(entity?.state)
+          ? n.toFixed(1)+''%'' : ''—''; ]]]'
+        range: '[[[ const s=states[''sensor.lsjwh4096pn255997_range'']; return s && ![''unknown'',''unavailable''].includes(s.state)
+          ? Math.round(Number(s.state))+'' km'' : ''— km''; ]]]'
+        bar: "[[[\n  const raw = entity?.state;\n  const value = Number(raw);\n  const valid = raw !== undefined\
+          \ && !['unknown', 'unavailable', 'none', ''].includes(raw) && Number.isFinite(value);\n  const pct = valid\
+          \ ? Math.max(0, Math.min(100, value)) : 0;\n  const charging = states['binary_sensor.lsjwh4096pn255997_battery_charging']?.state\
+          \ === 'on';\n  const animation = charging ? 'mg4-charge-flow 1.8s linear infinite' : 'none';\n  return\
+          \ `<style>\n    @keyframes mg4-charge-flow {\n      from { transform: translateX(-110%); }\n      to {\
+          \ transform: translateX(340%); }\n    }\n  </style>\n  <div style=\"height:10px;background:#34434e;border-radius:20px;overflow:hidden;width:100%\"\
+          >\n    <div style=\"height:100%;width:${pct}%;background:#63dbb1;border-radius:20px;position:relative;overflow:hidden\"\
+          >\n      <div style=\"display:${charging ? 'block' : 'none'};position:absolute;inset:0;width:32%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);animation:${animation};pointer-events:none\"\
+          ></div>\n    </div>\n  </div>`;\n]]]"
+    - type: picture
+      image: /api/image/serve/705c26700f9a7e6ed460bbe4011c54cf/original
+    - type: custom:mushroom-template-card
+      primary: '{% if is_state(''binary_sensor.lsjwh4096pn255997_vehicle_running'',''on'') %}Araç çalışıyor{% elif
+        is_state(''binary_sensor.lsjwh4096pn255997_vehicle_running'',''off'') %}Araç park halinde{% else %}Araç
+        durumu bilinmiyor{% endif %}'
+      secondary: '{%- macro tr_sure(t) -%}
+
+        {%- set saniye = [0, (as_timestamp(now()) - as_timestamp(t, as_timestamp(now()))) | int] | max -%}
+
+        {%- if saniye < 60 -%}az önce
+
+        {%- elif saniye < 3600 -%}{{ saniye // 60 }} dakika önce
+
+        {%- elif saniye < 86400 -%}{{ saniye // 3600 }} saat önce
+
+        {%- elif saniye < 2592000 -%}{{ saniye // 86400 }} gün önce
+
+        {%- elif saniye < 31536000 -%}{{ saniye // 2592000 }} ay önce
+
+        {%- else -%}{{ saniye // 31536000 }} yıl önce
+
+        {%- endif -%}
+
+        {%- endmacro -%}
+
+        {% if is_state(''binary_sensor.lsjwh4096pn255997_charger_connected'',''on'') %}Şarj kablosu bağlı{% elif
+        is_state(''binary_sensor.lsjwh4096pn255997_charger_connected'',''off'') %}Şarj kablosu bağlı değil{% else
+        %}Kablo durumu bilinmiyor{% endif %} · Son veri: {{ tr_sure(states.sensor.lsjwh4096pn255997_last_vehicle_state.last_changed)
+        if states.sensor.lsjwh4096pn255997_last_vehicle_state is defined else ''bilinmiyor'' }}'
+      icon: mdi:car-electric
+      icon_color: '{{ ''green'' if is_state(''binary_sensor.lsjwh4096pn255997_vehicle_running'',''on'') else ''blue''
+        }}'
+      grid_options:
+        columns: full
+      fill_container: true
+      multiline_secondary: true
+      card_mod:
+        style:
+          mushroom-state-info$: '.container { align-items: center !important; }
+
+            .primary, .secondary { text-align: center !important; }
+
+            '
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        entity: lock.lsjwh4096pn255997_doors_lock
+        primary: Kapı kilidi
+        secondary: '{% if is_state(''lock.lsjwh4096pn255997_doors_lock'',''locked'') %}Kilitli{% elif is_state(''lock.lsjwh4096pn255997_doors_lock'',''unlocked'')
+          %}Kilit açık{% else %}Durum bilinmiyor{% endif %}'
+        icon: '{% if is_state(''lock.lsjwh4096pn255997_doors_lock'',''locked'') %}mdi:lock{% elif is_state(''lock.lsjwh4096pn255997_doors_lock'',''unlocked'')
+          %}mdi:lock-open-variant{% else %}mdi:lock-question{% endif %}'
+        icon_color: '{% if is_state(''lock.lsjwh4096pn255997_doors_lock'',''locked'') %}green{% elif is_state(''lock.lsjwh4096pn255997_doors_lock'',''unlocked'')
+          %}red{% else %}disabled{% endif %}'
+        tap_action:
+          action: more-info
+        hold_action:
+          action: more-info
+        card_mod:
+          style: 'ha-card { background: {% if is_state(''lock.lsjwh4096pn255997_doors_lock'', ''locked'') %}rgba(22,163,74,.19){%
+            elif is_state(''lock.lsjwh4096pn255997_doors_lock'', ''unlocked'') %}rgba(220,38,38,.17){% else %}var(--ha-card-background,var(--card-background-color)){%
+            endif %} !important; border: 1px solid {% if is_state(''lock.lsjwh4096pn255997_doors_lock'', ''locked'')
+            %}rgba(74,222,128,.75){% elif is_state(''lock.lsjwh4096pn255997_doors_lock'', ''unlocked'') %}rgba(248,113,113,.75){%
+            else %}var(--divider-color){% endif %} !important; border-radius: 16px !important; transition: background
+            .25s ease, border-color .25s ease; }'
+      - type: custom:mushroom-template-card
+        entity: lock.lsjwh4096pn255997_boot_lock
+        primary: Bagaj kilidi
+        secondary: '{% if is_state(''lock.lsjwh4096pn255997_boot_lock'',''locked'') %}Kilitli{% elif is_state(''lock.lsjwh4096pn255997_boot_lock'',''unlocked'')
+          %}Kilit açık{% else %}Durum bilinmiyor{% endif %}'
+        icon: '{% if is_state(''lock.lsjwh4096pn255997_boot_lock'',''locked'') %}mdi:lock{% elif is_state(''lock.lsjwh4096pn255997_boot_lock'',''unlocked'')
+          %}mdi:lock-open-variant{% else %}mdi:lock-question{% endif %}'
+        icon_color: '{% if is_state(''lock.lsjwh4096pn255997_boot_lock'',''locked'') %}green{% elif is_state(''lock.lsjwh4096pn255997_boot_lock'',''unlocked'')
+          %}red{% else %}disabled{% endif %}'
+        tap_action:
+          action: more-info
+        hold_action:
+          action: more-info
+        card_mod:
+          style: 'ha-card { background: {% if is_state(''lock.lsjwh4096pn255997_boot_lock'', ''locked'') %}rgba(22,163,74,.19){%
+            elif is_state(''lock.lsjwh4096pn255997_boot_lock'', ''unlocked'') %}rgba(220,38,38,.17){% else %}var(--ha-card-background,var(--card-background-color)){%
+            endif %} !important; border: 1px solid {% if is_state(''lock.lsjwh4096pn255997_boot_lock'', ''locked'')
+            %}rgba(74,222,128,.75){% elif is_state(''lock.lsjwh4096pn255997_boot_lock'', ''unlocked'') %}rgba(248,113,113,.75){%
+            else %}var(--divider-color){% endif %} !important; border-radius: 16px !important; transition: background
+            .25s ease, border-color .25s ease; }'
+      - type: custom:mushroom-template-card
+        entity: switch.lsjwh4096pn255997_charging
+        primary: Şarj kontrolü
+        secondary: '{% if is_state(''switch.lsjwh4096pn255997_charging'', ''on'') %}Aktif{% else %}Pasif{% endif
+          %}'
+        icon: mdi:toggle-switch
+        icon_color: '{% if is_state(''switch.lsjwh4096pn255997_charging'', ''on'') %}red{% else %}disabled{% endif
+          %}'
+        tap_action:
+          action: call-service
+          service: script.mg4_sarj_geri_bildirim
+        hold_action:
+          action: more-info
+        card_mod:
+          style: 'ha-card { background: {% if is_state(''switch.lsjwh4096pn255997_charging'', ''on'') %}rgba(220,38,38,0.16){%
+            else %}var(--ha-card-background,var(--card-background-color)){% endif %}; border: 1px solid {% if is_state(''switch.lsjwh4096pn255997_charging'',
+            ''on'') %}rgba(239,68,68,0.65){% else %}var(--divider-color){% endif %}; border-radius: 16px; }'
+      - type: custom:mushroom-template-card
+        entity: switch.lsjwh4096pn255997_battery_heating
+        primary: Batarya ısıtma
+        secondary: '{% if is_state(''switch.lsjwh4096pn255997_battery_heating'',''on'') %}Aktif{% elif is_state(''switch.lsjwh4096pn255997_battery_heating'',''off'')
+          %}Pasif{% else %}Durum bilinmiyor{% endif %}'
+        icon: mdi:toggle-switch
+        icon_color: '{{ ''red'' if is_state(''switch.lsjwh4096pn255997_battery_heating'', ''on'') else ''disabled''
+          }}'
+        tap_action:
+          action: call-service
+          service: script.mg4_batarya_isitma_geri_bildirim
+        hold_action:
+          action: more-info
+        card_mod:
+          style: "ha-card {\n  background: {% if is_state('switch.lsjwh4096pn255997_battery_heating','on') %}rgba(220,38,38,.17){%\
+            \ else %}var(--ha-card-background,var(--card-background-color)){% endif %} !important;\n  border: 1px\
+            \ solid {% if is_state('switch.lsjwh4096pn255997_battery_heating','on') %}rgba(248,113,113,.75){% else\
+            \ %}var(--divider-color){% endif %} !important;\n  border-radius: 16px !important;\n  transition: background\
+            \ .25s ease, border-color .25s ease;\n}"
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: sensor.lsjwh4096pn255997_interior_temperature
+        name: Kabin
+        card_mod:
+          style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow:
+            0 4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+      - type: tile
+        entity: sensor.lsjwh4096pn255997_exterior_temperature
+        name: Dış ortam
+        card_mod:
+          style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow:
+            0 4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+    - type: entities
+      title: Araç özeti
+      show_header_toggle: false
+      entities:
+      - entity: sensor.lsjwh4096pn255997_mileage
+        name: Toplam kilometre
+      - entity: sensor.lsjwh4096pn255997_auxiliary_battery_voltage
+        name: 12V akü gerilimi
+      - entity: sensor.lsjwh4096pn255997_soc_kwh
+        name: Bataryadaki enerji (kWh)
+      card_mod:
+        style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow: 0
+          4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+- title: Enerji
+  path: enerji
+  icon: mdi:lightning-bolt
+  type: sections
+  max_columns: 1
+  sections:
+  - type: grid
+    cards:
+    - type: conditional
+      conditions:
+      - entity: input_boolean.mg4_bildirim_goster
+        state: 'on'
+      grid_options:
+        columns: full
+      card:
+        type: custom:button-card
+        entity: input_text.mg4_son_bildirim
+        show_icon: true
+        icon: mdi:message-check-outline
+        show_name: true
+        name: MG4 · İşlem bildirimi  ·  Kapatmak için dokun
+        show_state: true
+        show_label: false
+        tap_action:
+          action: call-service
+          service: input_boolean.turn_off
+          service_data:
+            entity_id: input_boolean.mg4_bildirim_goster
+        hold_action:
+          action: none
+        styles:
+          card:
+          - padding: 16px
+          - border-radius: 18px
+          - background: linear-gradient(115deg,rgba(27,43,54,.98),rgba(18,25,32,.98))
+          - border: 1px solid rgba(99,219,177,.5)
+          - box-shadow: 0 8px 24px rgba(0,0,0,.2)
+          - color: '#f4f7fa'
+          grid:
+          - grid-template-areas: '"i n" "i s"'
+          - grid-template-columns: 34px minmax(0,1fr)
+          - grid-template-rows: auto auto
+          - column-gap: 10px
+          - row-gap: 6px
+          icon:
+          - color: '#63dbb1'
+          - width: 25px
+          name:
+          - font-size: 12px
+          - font-weight: '600'
+          - opacity: '0.7'
+          - justify-self: start
+          - white-space: normal
+          - text-align: left
+          state:
+          - font-size: 14px
+          - white-space: normal
+          - overflow: visible
+          - text-overflow: clip
+          - word-break: break-word
+          - text-align: left
+          - justify-self: stretch
+    - type: grid
+      columns: 2
+      square: false
+      grid_options:
+        columns: full
+      cards:
+      - type: custom:mushroom-template-card
+        entity: sensor.epias_guncel_ptf_kwh_2
+        primary: Güncel PTF
+        secondary: '{% set s = states(''sensor.epias_guncel_ptf_kwh_2'') %}
+
+          {% if is_number(s) %}
+
+          {{ ''%.3f TL/kWh'' | format(s | float) }}
+
+          {% set t = as_local(states.sensor.epias_guncel_ptf_kwh_2.last_updated) %}
+
+          {{ t.strftime(''%d.%m.%Y'') }} · {{ t.strftime(''%H:00'') }}–{{ (t + timedelta(hours=1)).strftime(''%H:00'')
+          }}
+
+          {% else %}Veri bekleniyor{% endif %}'
+        icon: mdi:chart-line
+        icon_color: cyan
+        tap_action:
+          action: more-info
+        card_mod:
+          style: 'ha-card { border-radius: 16px; }'
+        multiline_secondary: true
+      - type: custom:mushroom-template-card
+        entity: sensor.epias_guncel_ptf_kwh_2
+        primary: Tahmini toplam fiyat
+        secondary: '{% set p = states(''sensor.epias_guncel_ptf_kwh_2'') %}{% if is_number(p) %}{{ ''%.2f TL/kWh''
+          | format((((p | float + 0.48886) * 1.0495 * 1.05) + 2.4249) * 1.10) }}{% else %}Veri bekleniyor{% endif
+          %}'
+        icon: mdi:cash-multiple
+        icon_color: green
+        tap_action:
+          action: more-info
+        card_mod:
+          style: 'ha-card { border-radius: 16px; }'
+    - type: markdown
+      content: '<small>Tahmini toplam: YEKDEM 0,48886 + %4,95 tedarikçi payı + 2,4249 TL/kWh dağıtım + %5 BTV +
+        %10 KDV. Bu değerler varsayımsaldır; sözleşme ve güncel tarifeyle doğrulanmalıdır.</small>'
+      grid_options:
+        columns: full
+    - type: heading
+      heading: Şarj · Kontroller ve canlı durum
+      heading_style: title
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        entity: switch.lsjwh4096pn255997_charging
+        primary: Şarj başlat / durdur
+        secondary: '{% if is_state(''switch.lsjwh4096pn255997_charging'', ''on'') %}Aktif{% else %}Pasif{% endif
+          %}'
+        icon: mdi:ev-station
+        icon_color: '{% if is_state(''switch.lsjwh4096pn255997_charging'', ''on'') %}red{% else %}disabled{% endif
+          %}'
+        tap_action:
+          action: call-service
+          service: script.mg4_sarj_geri_bildirim
+        hold_action:
+          action: more-info
+        card_mod:
+          style: 'ha-card { background: {% if is_state(''switch.lsjwh4096pn255997_charging'', ''on'') %}rgba(220,38,38,0.16){%
+            else %}var(--ha-card-background,var(--card-background-color)){% endif %}; border: 1px solid {% if is_state(''switch.lsjwh4096pn255997_charging'',
+            ''on'') %}rgba(239,68,68,0.65){% else %}var(--divider-color){% endif %}; border-radius: 16px; }'
+      - type: custom:mushroom-template-card
+        entity: lock.lsjwh4096pn255997_charging_cable_lock
+        primary: Şarj soketi kilidi
+        secondary: '{% if is_state(''lock.lsjwh4096pn255997_charging_cable_lock'',''locked'') %}Kilitli{% elif is_state(''lock.lsjwh4096pn255997_charging_cable_lock'',''unlocked'')
+          %}Kilit açık{% else %}Durum bilinmiyor{% endif %}'
+        icon: mdi:lock-outline
+        icon_color: '{% if is_state(''lock.lsjwh4096pn255997_charging_cable_lock'',''locked'') %}green{% elif is_state(''lock.lsjwh4096pn255997_charging_cable_lock'',''unlocked'')
+          %}red{% else %}disabled{% endif %}'
+        tap_action:
+          action: more-info
+        hold_action:
+          action: more-info
+        card_mod:
+          style: 'ha-card { background: {% if is_state(''lock.lsjwh4096pn255997_charging_cable_lock'', ''locked'')
+            %}rgba(22,163,74,.19){% elif is_state(''lock.lsjwh4096pn255997_charging_cable_lock'', ''unlocked'')
+            %}rgba(220,38,38,.17){% else %}var(--ha-card-background,var(--card-background-color)){% endif %} !important;
+            border: 1px solid {% if is_state(''lock.lsjwh4096pn255997_charging_cable_lock'', ''locked'') %}rgba(74,222,128,.75){%
+            elif is_state(''lock.lsjwh4096pn255997_charging_cable_lock'', ''unlocked'') %}rgba(248,113,113,.75){%
+            else %}var(--divider-color){% endif %} !important; border-radius: 16px !important; transition: background
+            .25s ease, border-color .25s ease; }'
+      grid_options:
+        columns: full
+    - type: markdown
+      content: '{% set cable = states(''binary_sensor.lsjwh4096pn255997_charger_connected'') %}
+
+        {% set active = states(''binary_sensor.lsjwh4096pn255997_battery_charging'') %}
+
+        {% set command = states(''switch.lsjwh4096pn255997_charging'') %}
+
+        {% if cable in [''unknown'',''unavailable''] or active in [''unknown'',''unavailable''] %}
+
+        **ℹ️ Şarj durumu doğrulanamıyor.** Araçtan güncel bilgi bekleniyor.
+
+        {% elif active == ''on'' %}
+
+        **🟢 Şarj devam ediyor.** Araç bataryanın şarj edildiğini bildiriyor.
+
+        {% elif cable == ''off'' %}
+
+        **🔌 Şarj kablosu takılı değil.** Şarj başlatmak için kabloyu bağlayın.
+
+        {% elif command == ''on'' %}
+
+        **🟠 Şarj başlatma isteği açık, ancak şarj henüz başlamamış.** Araç durumunu, şarj sınırını ve planlamayı
+        kontrol edin.
+
+        {% else %}
+
+        **ℹ️ Kablo takılı, şarj yapılmıyor.** Şarjı başlatabilir veya planlanan saati bekleyebilirsiniz.
+
+        {% endif %}'
+      card_mod:
+        style: 'ha-card {border-radius: 14px !important; border: 1px solid var(--divider-color); box-shadow: none;
+          padding: 2px 4px; }'
+      grid_options:
+        columns: full
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: number.lsjwh4096pn255997_target_soc
+        name: Şarj sınırı (%)
+        icon: mdi:battery-charging-80
+        vertical: false
+        features_position: bottom
+        features:
+        - type: numeric-input
+          style: buttons
+      - type: tile
+        entity: select.lsjwh4096pn255997_charge_current_limit
+        name: Şarj akımı
+        icon: mdi:current-ac
+        vertical: false
+        features_position: bottom
+        features:
+        - type: select-options
+        card_mod:
+          style: 'ha-card { border-radius: 14px; border: 1px solid var(--divider-color); box-shadow: none; }'
+      grid_options:
+        columns: full
+    - type: entities
+      title: Anlık şarj bilgileri
+      show_header_toggle: false
+      entities:
+      - entity: sensor.mg4_tr_charger_connected
+        name: Şarj kablosu takılı mı?
+      - entity: sensor.mg4_tr_battery_charging
+        name: Şarj devam ediyor mu?
+      - entity: sensor.lsjwh4096pn255997_power
+        name: Anlık güç (kW)
+      - entity: sensor.lsjwh4096pn255997_voltage
+        name: Batarya gerilimi (V)
+      - entity: sensor.lsjwh4096pn255997_current
+        name: Şarj akımı (A)
+      - entity: sensor.lsjwh4096pn255997_remaining_charging_time
+        name: Kalan şarj süresi (saniye)
+      - entity: sensor.lsjwh4096pn255997_charging_finished
+        name: Tahmini şarj bitişi
+      - entity: sensor.lsjwh4096pn255997_soc_kwh
+        name: Bataryada kalan enerji (kWh)
+      - entity: sensor.lsjwh4096pn255997_total_battery_capacity
+        name: Toplam batarya kapasitesi (kWh)
+      card_mod:
+        style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow: 0
+          4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+    - type: custom:config-template-card
+      grid_options:
+        columns: full
+      entities:
+      - input_datetime.mg4_oturum_baslangic
+      - input_datetime.mg4_oturum_bitis
+      - input_boolean.mg4_oturum_aktif
+      - binary_sensor.lsjwh4096pn255997_battery_charging
+      - sensor.lsjwh4096pn255997_soc
+      - sensor.lsjwh4096pn255997_power
+      - sensor.lsjwh4096pn255997_current
+      variables:
+      - Date.parse((states['input_datetime.mg4_oturum_baslangic']?.state || '').replace(' ', 'T'))
+      - Date.parse((states['input_datetime.mg4_oturum_bitis']?.state || '').replace(' ', 'T'))
+      - states['input_boolean.mg4_oturum_aktif']?.state === 'on'
+      card:
+        type: vertical-stack
+        cards:
+        - type: custom:apexcharts-card
+          header:
+            show: true
+            title: MG4 · Şarj Oturumu | Batarya Doluluğu (%)
+            show_states: false
+          graph_span: '${Number.isFinite(vars[0]) && vars[0] > 1700000000000 && (vars[2] || (Number.isFinite(vars[1])
+            && vars[1] > vars[0])) ? Math.max(2, Math.ceil(((vars[2] ? Date.now() : vars[1]) - vars[0]) / 60000)
+            + 1) + ''min'' : ''24h''}'
+          span:
+            end: minute
+            offset: '${Number.isFinite(vars[0]) && vars[0] > 1700000000000 && !vars[2] && Number.isFinite(vars[1])
+              && vars[1] > vars[0] ? ''-'' + Math.max(0, Math.ceil((Date.now() - vars[1]) / 60000)) + ''min'' :
+              ''+0min''}'
+          series:
+          - entity: sensor.lsjwh4096pn255997_soc
+            name: Batarya doluluğu (%)
+            type: area
+            stroke_width: 2
+          yaxis:
+          - min: 0
+            max: 100
+    - type: heading
+      heading: Son tamamlanan şarj
+      icon: mdi:history
+    - type: entities
+      title: Son şarj bilgileri
+      show_header_toggle: false
+      entities:
+      - entity: sensor.lsjwh4096pn255997_last_charge_start_time
+        name: Başlangıç
+      - entity: sensor.lsjwh4096pn255997_last_charge_end_time
+        name: Bitiş
+      - entity: sensor.lsjwh4096pn255997_last_charge_soc_kwh
+        name: Son şarjda kaydedilen enerji
+      card_mod:
+        style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow: 0
+          4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+    - type: heading
+      heading: Şarj planlaması
+      icon: mdi:calendar-clock
+    - type: horizontal-stack
+      cards:
+      - type: tile
+        entity: select.lsjwh4096pn255997_scheduled_charging_mode
+        name: Plan modu
+        icon: mdi:calendar-sync
+        vertical: false
+        features_position: bottom
+        features:
+        - type: select-options
+        card_mod:
+          style: 'ha-card { border-radius: 14px !important; height: 100%; box-shadow: none; border: 1px solid var(--divider-color);
+            }'
+      - type: entities
+        show_header_toggle: false
+        entities:
+        - entity: text.lsjwh4096pn255997_scheduled_charging_start
+          name: Başlangıç
+          icon: mdi:clock-start
+        - entity: text.lsjwh4096pn255997_scheduled_charging_end
+          name: Bitiş
+          icon: mdi:clock-end
+        card_mod:
+          style: 'ha-card { border-radius: 14px !important; height: 100%; box-shadow: none; border: 1px solid var(--divider-color);
+            } ha-card .card-content { padding: 8px 6px !important; }'
+      grid_options:
+        columns: full
+    - type: entities
+      title: Araçta kayıtlı şarj planı
+      show_header_toggle: false
+      entities:
+      - entity: sensor.lsjwh4096pn255997_scheduled_charging_start
+        name: Başlangıç
+      - entity: sensor.lsjwh4096pn255997_scheduled_charging_end
+        name: Bitiş
+      - entity: sensor.mg4_tr_scheduled_charging_mode
+        name: Etkin plan modu
+      card_mod:
+        style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow: 0
+          4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+    - type: heading
+      heading: Batarya ön ısıtma
+      heading_style: title
+    - type: custom:mushroom-template-card
+      entity: switch.lsjwh4096pn255997_battery_heating
+      primary: Batarya ön ısıtma
+      secondary: '{% if is_state(''switch.lsjwh4096pn255997_battery_heating'',''on'') %}Aktif{% elif is_state(''switch.lsjwh4096pn255997_battery_heating'',''off'')
+        %}Pasif{% else %}Durum bilinmiyor{% endif %}'
+      icon: mdi:battery-heart-variant
+      icon_color: '{{ ''red'' if is_state(''switch.lsjwh4096pn255997_battery_heating'', ''on'') else ''disabled''
+        }}'
+      tap_action:
+        action: call-service
+        service: script.mg4_batarya_isitma_geri_bildirim
+      hold_action:
+        action: more-info
+      card_mod:
+        style: "ha-card {\n  background: {% if is_state('switch.lsjwh4096pn255997_battery_heating', 'on') %}rgba(220,38,38,.17){%\
+          \ else %}var(--ha-card-background,var(--card-background-color)){% endif %} !important;\n  border: 1px\
+          \ solid {% if is_state('switch.lsjwh4096pn255997_battery_heating', 'on') %}rgba(248,113,113,.75){% else\
+          \ %}var(--divider-color){% endif %} !important;\n  border-radius: 16px !important;\n  transition: background\
+          \ .25s ease, border-color .25s ease;\n}"
+      grid_options:
+        columns: full
+    - type: heading
+      heading: Batarya ısıtma planı
+      icon: mdi:battery-clock
+    - type: horizontal-stack
+      cards:
+      - type: tile
+        entity: select.lsjwh4096pn255997_scheduled_battery_heating
+        name: Isıtma planı
+        icon: mdi:calendar-check
+        vertical: false
+        features_position: bottom
+        features:
+        - type: select-options
+        card_mod:
+          style: 'ha-card { border-radius: 14px !important; height: 100%; box-shadow: none; border: 1px solid var(--divider-color);
+            }'
+      - type: entities
+        show_header_toggle: false
+        entities:
+        - entity: text.lsjwh4096pn255997_scheduled_battery_heating_start
+          name: Başlangıç
+          icon: mdi:clock-outline
+        card_mod:
+          style: 'ha-card { border-radius: 14px !important; height: 100%; box-shadow: none; border: 1px solid var(--divider-color);
+            } ha-card .card-content { padding: 8px 6px !important; }'
+      grid_options:
+        columns: full
+    - type: entities
+      title: Isıtma planı durumu
+      show_header_toggle: false
+      entities:
+      - entity: sensor.mg4_tr_battery_heating
+        name: Batarya şu anda ısıtılıyor mu?
+      - entity: sensor.mg4_tr_scheduled_battery_heating
+        name: Plan etkin mi?
+      - entity: sensor.lsjwh4096pn255997_scheduled_battery_heating_start
+        name: Araçta kayıtlı başlangıç
+      card_mod:
+        style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow: 0
+          4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+- title: Konfor
+  path: konfor
+  icon: mdi:car-seat-heater
+  type: sections
+  max_columns: 1
+  sections:
+  - type: grid
+    cards:
+    - type: conditional
+      conditions:
+      - entity: input_boolean.mg4_bildirim_goster
+        state: 'on'
+      grid_options:
+        columns: full
+      card:
+        type: custom:button-card
+        entity: input_text.mg4_son_bildirim
+        show_icon: true
+        icon: mdi:message-check-outline
+        show_name: true
+        name: MG4 · İşlem bildirimi  ·  Kapatmak için dokun
+        show_state: true
+        show_label: false
+        tap_action:
+          action: call-service
+          service: input_boolean.turn_off
+          service_data:
+            entity_id: input_boolean.mg4_bildirim_goster
+        hold_action:
+          action: none
+        styles:
+          card:
+          - padding: 16px
+          - border-radius: 18px
+          - background: linear-gradient(115deg,rgba(27,43,54,.98),rgba(18,25,32,.98))
+          - border: 1px solid rgba(99,219,177,.5)
+          - box-shadow: 0 8px 24px rgba(0,0,0,.2)
+          - color: '#f4f7fa'
+          grid:
+          - grid-template-areas: '"i n" "i s"'
+          - grid-template-columns: 34px minmax(0,1fr)
+          - grid-template-rows: auto auto
+          - column-gap: 10px
+          - row-gap: 6px
+          icon:
+          - color: '#63dbb1'
+          - width: 25px
+          name:
+          - font-size: 12px
+          - font-weight: '600'
+          - opacity: '0.7'
+          - justify-self: start
+          - white-space: normal
+          - text-align: left
+          state:
+          - font-size: 14px
+          - white-space: normal
+          - overflow: visible
+          - text-overflow: clip
+          - word-break: break-word
+          - text-align: left
+          - justify-self: stretch
+    - type: heading
+      heading: Kabin · Sıcaklık ve klima
+      heading_style: title
+      icon: mdi:air-conditioner
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: sensor.lsjwh4096pn255997_interior_temperature
+        name: İç sıcaklık
+        card_mod:
+          style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow:
+            0 4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+      - type: tile
+        entity: sensor.lsjwh4096pn255997_exterior_temperature
+        name: Dış sıcaklık
+        card_mod:
+          style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow:
+            0 4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+    - type: thermostat
+      entity: climate.lsjwh4096pn255997_vehicle_climate
+      name: Kabin sıcaklığı ve klima
+      show_current_as_primary: false
+      grid_options:
+        columns: full
+      card_mod:
+        style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow: 0
+          4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+    - type: tile
+      entity: climate.lsjwh4096pn255997_vehicle_climate
+      name: Klima modu ve hedef sıcaklık
+      icon: mdi:air-conditioner
+      features_position: bottom
+      features:
+      - type: climate-hvac-modes
+        hvac_modes:
+        - 'off'
+        - auto
+      - type: target-temperature
+      grid_options:
+        columns: full
+      card_mod:
+        style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow: 0
+          4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+    - type: custom:mushroom-template-card
+      primary: Kabin iklimlendirme
+      secondary: 'Klima durumu: {{ states(''sensor.mg4_tr_remote_climate_state'') }} · İç: {{ states(''sensor.lsjwh4096pn255997_interior_temperature'')
+        }} °C · Dış: {{ states(''sensor.lsjwh4096pn255997_exterior_temperature'') }} °C'
+      icon: mdi:car-seat-cooler
+      multiline_secondary: true
+      fill_container: true
+      grid_options:
+        columns: full
+    - type: heading
+      heading: Koltuk ısıtma · Sürücü ve yolcu
+      icon: mdi:car-seat-heater
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: select.lsjwh4096pn255997_heated_seat_front_left_level
+        name: Sürücü koltuğu
+        icon: mdi:car-seat-heater
+        vertical: false
+        features_position: bottom
+        features:
+        - type: select-options
+        card_mod:
+          style: "ha-card {\n  background: {% if (states('select.lsjwh4096pn255997_heated_seat_front_left_level')\
+            \ | lower) not in ['off', '0', 'none', 'unknown', 'unavailable', 'disabled', 'kapalı', ''] %}rgba(220,38,38,.17){%\
+            \ else %}var(--ha-card-background,var(--card-background-color)){% endif %} !important;\n  border: 1px\
+            \ solid {% if (states('select.lsjwh4096pn255997_heated_seat_front_left_level') | lower) not in ['off',\
+            \ '0', 'none', 'unknown', 'unavailable', 'disabled', 'kapalı', ''] %}rgba(248,113,113,.75){% else %}var(--divider-color){%\
+            \ endif %} !important;\n  border-radius: 14px !important;\n  box-shadow: none;\n  transition: background\
+            \ .25s ease, border-color .25s ease;\n}"
+      - type: tile
+        entity: select.lsjwh4096pn255997_heated_seat_front_right_level
+        name: Yolcu koltuğu
+        icon: mdi:car-seat-heater
+        vertical: false
+        features_position: bottom
+        features:
+        - type: select-options
+        card_mod:
+          style: "ha-card {\n  background: {% if (states('select.lsjwh4096pn255997_heated_seat_front_right_level')\
+            \ | lower) not in ['off', '0', 'none', 'unknown', 'unavailable', 'disabled', 'kapalı', ''] %}rgba(220,38,38,.17){%\
+            \ else %}var(--ha-card-background,var(--card-background-color)){% endif %} !important;\n  border: 1px\
+            \ solid {% if (states('select.lsjwh4096pn255997_heated_seat_front_right_level') | lower) not in ['off',\
+            \ '0', 'none', 'unknown', 'unavailable', 'disabled', 'kapalı', ''] %}rgba(248,113,113,.75){% else %}var(--divider-color){%\
+            \ endif %} !important;\n  border-radius: 14px !important;\n  box-shadow: none;\n  transition: background\
+            \ .25s ease, border-color .25s ease;\n}"
+      grid_options:
+        columns: full
+    - type: heading
+      heading: Hızlı kontroller · Fan ve camlar
+      heading_style: title
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: custom:mushroom-template-card
+        entity: switch.lsjwh4096pn255997_vehicle_climate_fan_only
+        primary: Yalnızca fan
+        secondary: '{% if is_state(''switch.lsjwh4096pn255997_vehicle_climate_fan_only'',''on'') %}Aktif{% elif
+          is_state(''switch.lsjwh4096pn255997_vehicle_climate_fan_only'',''off'') %}Pasif{% else %}Durum bilinmiyor{%
+          endif %}'
+        icon: mdi:fan
+        icon_color: '{% if is_state(''switch.lsjwh4096pn255997_vehicle_climate_fan_only'', ''on'') %}red{% else
+          %}disabled{% endif %}'
+        tap_action:
+          action: call-service
+          service: script.mg4_fan_geri_bildirim
+        hold_action:
+          action: more-info
+        card_mod:
+          style: "ha-card {\n  background: {% if is_state('switch.lsjwh4096pn255997_vehicle_climate_fan_only', 'on')\
+            \ %}rgba(220,38,38,.17){% else %}var(--ha-card-background,var(--card-background-color)){% endif %} !important;\n\
+            \  border: 1px solid {% if is_state('switch.lsjwh4096pn255997_vehicle_climate_fan_only', 'on') %}rgba(248,113,113,.75){%\
+            \ else %}var(--divider-color){% endif %} !important;\n  border-radius: 16px !important;\n  transition:\
+            \ background .25s ease, border-color .25s ease;\n}"
+      - type: custom:mushroom-template-card
+        entity: switch.lsjwh4096pn255997_front_window_defroster_heating
+        primary: Ön cam buğu çözme
+        secondary: '{% if is_state(''switch.lsjwh4096pn255997_front_window_defroster_heating'',''on'') %}Aktif{%
+          elif is_state(''switch.lsjwh4096pn255997_front_window_defroster_heating'',''off'') %}Pasif{% else %}Durum
+          bilinmiyor{% endif %}'
+        icon: mdi:car-defrost-front
+        icon_color: '{% if is_state(''switch.lsjwh4096pn255997_front_window_defroster_heating'', ''on'') %}red{%
+          else %}disabled{% endif %}'
+        tap_action:
+          action: call-service
+          service: script.mg4_on_cam_geri_bildirim
+        hold_action:
+          action: more-info
+        card_mod:
+          style: "ha-card {\n  background: {% if is_state('switch.lsjwh4096pn255997_front_window_defroster_heating',\
+            \ 'on') %}rgba(220,38,38,.17){% else %}var(--ha-card-background,var(--card-background-color)){% endif\
+            \ %} !important;\n  border: 1px solid {% if is_state('switch.lsjwh4096pn255997_front_window_defroster_heating',\
+            \ 'on') %}rgba(248,113,113,.75){% else %}var(--divider-color){% endif %} !important;\n  border-radius:\
+            \ 16px !important;\n  transition: background .25s ease, border-color .25s ease;\n}"
+      - type: custom:mushroom-template-card
+        entity: switch.lsjwh4096pn255997_rear_window_defroster_heating
+        primary: Arka cam rezistansı
+        secondary: '{% if is_state(''switch.lsjwh4096pn255997_rear_window_defroster_heating'',''on'') %}Aktif{%
+          elif is_state(''switch.lsjwh4096pn255997_rear_window_defroster_heating'',''off'') %}Pasif{% else %}Durum
+          bilinmiyor{% endif %}'
+        icon: mdi:car-defrost-rear
+        icon_color: '{% if is_state(''switch.lsjwh4096pn255997_rear_window_defroster_heating'', ''on'') %}red{%
+          else %}disabled{% endif %}'
+        tap_action:
+          action: call-service
+          service: script.mg4_arka_cam_geri_bildirim
+        hold_action:
+          action: more-info
+        card_mod:
+          style: "ha-card {\n  background: {% if is_state('switch.lsjwh4096pn255997_rear_window_defroster_heating',\
+            \ 'on') %}rgba(220,38,38,.17){% else %}var(--ha-card-background,var(--card-background-color)){% endif\
+            \ %} !important;\n  border: 1px solid {% if is_state('switch.lsjwh4096pn255997_rear_window_defroster_heating',\
+            \ 'on') %}rgba(248,113,113,.75){% else %}var(--divider-color){% endif %} !important;\n  border-radius:\
+            \ 16px !important;\n  transition: background .25s ease, border-color .25s ease;\n}"
+    - type: entities
+      title: İklimlendirme durumu
+      show_header_toggle: false
+      entities:
+      - entity: sensor.mg4_tr_remote_climate_state
+        name: Uzaktan klima durumu
+      - entity: sensor.mg4_tr_rear_window_defroster_heating
+        name: Arka cam rezistansı durumu
+      card_mod:
+        style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow: 0
+          4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+- title: Araç
+  path: araç
+  icon: mdi:car-info
+  type: sections
+  max_columns: 1
+  sections:
+  - type: grid
+    cards:
+    - type: heading
+      heading: Araç durumu ve güvenlik
+      heading_style: title
+    - type: heading
+      heading: Kapılar ve camlar
+      heading_style: subtitle
+    - type: entities
+      title: Kapılar, bagaj ve kaput
+      show_header_toggle: false
+      entities:
+      - entity: sensor.mg4_tr_door_driver
+        name: Sürücü kapısı
+      - entity: sensor.mg4_tr_door_passenger
+        name: Ön yolcu kapısı
+      - entity: sensor.mg4_tr_door_rear_left
+        name: Sol arka kapı
+      - entity: sensor.mg4_tr_door_rear_right
+        name: Sağ arka kapı
+      - entity: sensor.mg4_tr_boot
+        name: Bagaj açık mı?
+      - entity: sensor.mg4_tr_bonnet
+        name: Kaput açık mı?
+      card_mod:
+        style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow: 0
+          4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+    - type: entities
+      title: Camlar açık mı?
+      show_header_toggle: false
+      entities:
+      - entity: sensor.mg4_tr_window_driver
+        name: Sürücü kapısı
+      - entity: sensor.mg4_tr_window_passenger
+        name: Ön yolcu kapısı
+      - entity: sensor.mg4_tr_window_rear_left
+        name: Sol arka kapı
+      - entity: sensor.mg4_tr_window_rear_right
+        name: Sağ arka kapı
+      card_mod:
+        style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow: 0
+          4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+    - type: heading
+      heading: Lastikler ve aydınlatma
+      heading_style: subtitle
+    - type: entities
+      title: Lastik basınçları (bar)
+      show_header_toggle: false
+      entities:
+      - entity: sensor.lsjwh4096pn255997_tyres_front_left_pressure
+        name: Sol ön
+      - entity: sensor.lsjwh4096pn255997_tyres_front_right_pressure
+        name: Sağ ön
+      - entity: sensor.lsjwh4096pn255997_tyres_rear_left_pressure
+        name: Sol arka
+      - entity: sensor.lsjwh4096pn255997_tyres_rear_right_pressure
+        name: Sağ arka
+      card_mod:
+        style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow: 0
+          4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+    - type: entities
+      title: Aydınlatma durumu
+      show_header_toggle: false
+      entities:
+      - entity: sensor.mg4_tr_lights_side
+        name: Park lambaları
+      - entity: sensor.mg4_tr_lights_dipped_beam
+        name: Kısa farlar
+      - entity: sensor.mg4_tr_lights_main_beam
+        name: Uzun farlar
+      card_mod:
+        style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow: 0
+          4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+    - type: heading
+      heading: Sürüş ve araç komutları
+      heading_style: subtitle
+    - type: entities
+      title: Sürüş bilgileri
+      show_header_toggle: false
+      entities:
+      - entity: sensor.mg4_tr_vehicle_running
+        name: Araç çalışıyor mu?
+      - entity: sensor.mg4_tr_hv_battery_active
+        name: Yüksek voltaj bataryası aktif mi?
+      - entity: sensor.lsjwh4096pn255997_vehicle_speed
+        name: Araç hızı
+      - entity: sensor.lsjwh4096pn255997_heading
+        name: Sürüş yönü
+      card_mod:
+        style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow: 0
+          4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+    - type: custom:mushroom-template-card
+      entity: switch.lsjwh4096pn255997_find_my_car
+      primary: Aracımı bul (durum bilinmiyor olabilir)
+      secondary: '{% if is_state(''switch.lsjwh4096pn255997_find_my_car'',''on'') %}Aktif{% elif is_state(''switch.lsjwh4096pn255997_find_my_car'',''off'')
+        %}Pasif{% else %}Durum bilinmiyor{% endif %}'
+      icon: mdi:toggle-switch
+      icon_color: '{% if is_state(''switch.lsjwh4096pn255997_find_my_car'',''on'') %}green{% elif is_state(''switch.lsjwh4096pn255997_find_my_car'',''off'')
+        %}red{% else %}disabled{% endif %}'
+      tap_action:
+        action: toggle
+      hold_action:
+        action: more-info
+      card_mod:
+        style: 'ha-card { background: {% if is_state(''switch.lsjwh4096pn255997_find_my_car'', ''on'') %}rgba(22,163,74,.19){%
+          elif is_state(''switch.lsjwh4096pn255997_find_my_car'', ''off'') %}rgba(220,38,38,.17){% else %}var(--ha-card-background,var(--card-background-color)){%
+          endif %} !important; border: 1px solid {% if is_state(''switch.lsjwh4096pn255997_find_my_car'', ''on'')
+          %}rgba(74,222,128,.75){% elif is_state(''switch.lsjwh4096pn255997_find_my_car'', ''off'') %}rgba(248,113,113,.75){%
+          else %}var(--divider-color){% endif %} !important; border-radius: 16px !important; transition: background
+          .25s ease, border-color .25s ease; }'
+- title: Konum
+  path: konum
+  icon: mdi:map-marker-radius
+  type: sections
+  max_columns: 1
+  sections:
+  - type: grid
+    cards:
+    - type: heading
+      heading: MG4 · Konum
+      heading_style: title
+      icon: mdi:map-marker-radius
+    - type: markdown
+      grid_options:
+        columns: full
+      content: "{%- macro tr_sure(t) -%}\n{%- set saniye = [0, (as_timestamp(now()) - as_timestamp(t, as_timestamp(now())))\
+        \ | int] | max -%}\n{%- if saniye < 60 -%}az önce\n{%- elif saniye < 3600 -%}{{ saniye // 60 }} dakika önce\n\
+        {%- elif saniye < 86400 -%}{{ saniye // 3600 }} saat önce\n{%- elif saniye < 2592000 -%}{{ saniye // 86400\
+        \ }} gün önce\n{%- elif saniye < 31536000 -%}{{ saniye // 2592000 }} ay önce\n{%- else -%}{{ saniye // 31536000\
+        \ }} yıl önce\n{%- endif -%}\n{%- endmacro -%}\n<div style=\"display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;\"\
+        >\n  <div><span style=\"font-size:21px;font-weight:700\">\U0001F698 MG4 Luxury</span><div style=\"opacity:.7;font-size:12px;margin-top:4px\"\
+        >Son bilinen araç konumu</div></div>\n  <div style=\"text-align:right\"><div style=\"font-size:13px;font-weight:600\"\
+        >{% set s = states('device_tracker.lsjwh4096pn255997_vehicle_position') %}{% if s in ['unknown','unavailable']\
+        \ %}⚪ Konum bilinmiyor{% else %}\U0001F7E2 Konum kaydı mevcut{% endif %}</div><div style=\"font-size:12px;opacity:.75;margin-top:4px\"\
+        >{% set t = states.device_tracker.lsjwh4096pn255997_vehicle_position %}{% if t is defined %}Son durum: {{\
+        \ tr_sure(t.last_updated) }}{% else %}Son güncelleme bilinmiyor{% endif %}</div></div>\n</div>"
+      card_mod:
+        style: ha-card {border-radius:18px!important;padding:3px 6px!important;border:1px solid var(--divider-color);box-shadow:none;}
+    - type: custom:ha-openfreemap-card
+      title: MG4 · Canlı Konum
+      height: 440px
+      entities:
+      - device_tracker.lsjwh4096pn255997_vehicle_position
+      zoom: 15
+      fit_bounds: true
+      style: auto
+      light_style: positron
+      dark_style: dark
+      compact_attribution: true
+      show_zones: false
+      grid_options:
+        columns: full
+    - type: grid
+      columns: 2
+      square: false
+      grid_options:
+        columns: full
+      cards:
+      - type: tile
+        entity: device_tracker.lsjwh4096pn255997_vehicle_position
+        name: Araç konumu
+        icon: mdi:car-marker
+        tap_action:
+          action: more-info
+      - type: markdown
+        content: '{%- macro tr_sure(t) -%}
+
+          {%- set saniye = [0, (as_timestamp(now()) - as_timestamp(t, as_timestamp(now()))) | int] | max -%}
+
+          {%- if saniye < 60 -%}az önce
+
+          {%- elif saniye < 3600 -%}{{ saniye // 60 }} dakika önce
+
+          {%- elif saniye < 86400 -%}{{ saniye // 3600 }} saat önce
+
+          {%- elif saniye < 2592000 -%}{{ saniye // 86400 }} gün önce
+
+          {%- elif saniye < 31536000 -%}{{ saniye // 2592000 }} ay önce
+
+          {%- else -%}{{ saniye // 31536000 }} yıl önce
+
+          {%- endif -%}
+
+          {%- endmacro -%}
+
+          **<ha-icon icon="mdi:clock-outline"></ha-icon> Son konum güncellemesi**
+
+
+          {% set t = states.device_tracker.lsjwh4096pn255997_vehicle_position %}{% if t is defined %}{{ tr_sure(t.last_updated)
+          }}{% else %}Bilinmiyor{% endif %}'
+        card_mod:
+          style: ha-card {height:100%;border-radius:14px;border:1px solid var(--divider-color);box-shadow:none;}
+    - type: markdown
+      grid_options:
+        columns: full
+      content: <span style="font-size:12px;opacity:.75">ⓘ Harita yalnızca aracın son bilinen konumunu gösterir;
+        geçmiş rota çizgileri gösterilmez. Araç uyku modundayken konum güncellenmeyebilir.</span>
+      card_mod:
+        style: ha-card {background:transparent!important;box-shadow:none!important;border:none!important;}
+- title: Analiz
+  path: analiz
+  icon: mdi:chart-areaspline
+  type: sections
+  max_columns: 1
+  sections:
+  - type: grid
+    cards:
+    - type: heading
+      heading: Menzil karşılaştırması
+      heading_style: title
+      icon: mdi:map-marker-distance
+    - type: grid
+      columns: 2
+      square: false
+      grid_options:
+        columns: full
+      cards:
+      - type: tile
+        entity: sensor.lsjwh4096pn255997_range
+        name: Araç tahmini
+        icon: mdi:car-electric
+      - type: tile
+        entity: sensor.mg4_son_surus_tahmini_menzil
+        name: Son sürüşe göre
+        icon: mdi:chart-line
+    - type: markdown
+      content: '**Karşılaştırma:** Solda aracın bildirdiği kalan menzil, sağda son geçerli sürüşün kilometre ve
+        SoC tüketiminden hesaplanan kalan menzil bulunur. İki tahmin farklı yöntemler kullandığından sonuçlar değişebilir.'
+    - type: heading
+      heading: Son sürüş · Özet
+      heading_style: title
+      icon: mdi:car-info
+    - type: markdown
+      grid_options:
+        columns: full
+      content: '**Bir bakışta:** Son geçerli sürüşün kilometresi, 100 km başına SoC kaybı, menzil sapması ve menzil
+        tahmin doğruluğu. Bu değerler aynı anda güncellenmeyebilir; ilgili sensörlerin son kayıtları gösterilir.'
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: input_number.mg4_son_surus_km
+        name: Son sürüş · km
+        icon: mdi:road-variant
+      - type: tile
+        entity: input_number.mg4_ek_son_soc_100km
+        name: SoC puanı / 100 km
+        icon: mdi:battery-arrow-down
+      - type: tile
+        entity: input_number.mg4_ek_son_menzil_sapma
+        name: Menzil sapması · km
+        icon: mdi:map-marker-distance
+      - type: tile
+        entity: input_number.mg4_ek_son_dogruluk_puani
+        name: Doğruluk · /100
+        icon: mdi:target
+      grid_options:
+        columns: full
+    - type: entities
+      title: Son sürüş · Ek ölçümler
+      show_header_toggle: false
+      entities:
+      - entity: input_number.mg4_son_surus_soc_kaybi
+        name: SoC düşüşü (yüzde puanı)
+      - entity: input_number.mg4_ek_son_sicaklik
+        name: Sürüş başlangıç sıcaklığı (°C)
+      - entity: input_number.mg4_ek_son_bitis_sicaklik
+        name: Sürüş bitiş sıcaklığı (°C)
+      - entity: input_number.mg4_ek_son_ortalama_sicaklik
+        name: Sürüş ortalama sıcaklığı (°C)
+      - entity: input_datetime.mg4_ek_son_analiz_zamani
+        name: Son analiz zamanı
+    - type: heading
+      heading: Menzil · Doğruluk ve sapma
+      heading_style: title
+      icon: mdi:map-marker-distance
+    - type: history-graph
+      title: Menzil göstergesi sapması · Son 30 gün (km)
+      hours_to_show: 720
+      entities:
+      - entity: input_number.mg4_ek_son_menzil_sapma
+        name: Fazladan menzil kaybı
+      grid_options:
+        columns: full
+    - type: markdown
+      content: '**Sapma = (gösterge menzilindeki düşüş) − (gerçek sürüş km).** Pozitif değer: gösterge menzili gidilen
+        mesafeden daha fazla azalmış. Negatif değer: daha az azalmış. Bu, tahminin mutlak doğruluğu veya batarya
+        sağlığı değildir. Ölçüm yalnızca uygun tamamlanmış sürüşlerde güncellenir.'
+    - type: history-graph
+      title: Menzil doğruluk puanı · Son 30 gün
+      hours_to_show: 720
+      entities:
+      - entity: input_number.mg4_ek_son_dogruluk_puani
+        name: Doğruluk puanı
+    - type: markdown
+      grid_options:
+        columns: full
+      content: '**Grafik notu:** Eski uç değerler ölçeği bozarsa önce kayıt doğruluğunu kontrol edin. Bu sürüm geçmişi
+        silmez veya gerçek verileri gizlemez.'
+    - type: heading
+      heading: Tüketim · SoC / 100 km
+      heading_style: title
+      icon: mdi:battery-arrow-down
+    - type: history-graph
+      title: Sürüş başına SoC kaybı / 100 km · Son 30 gün
+      hours_to_show: 720
+      entities:
+      - entity: input_number.mg4_ek_son_soc_100km
+        name: SoC puanı / 100 km
+      grid_options:
+        columns: full
+    - type: markdown
+      content: '**Nasıl yorumlanır?** Sürüş sonunda kaydedilen SoC puanı / 100 km değerini, aynı sürüşün başlangıç
+        dış sıcaklığıyla karşılaştır. Bu grafik yalnızca yeni tamamlanan sürüşlerde değişir; ara zamanlardaki yatay
+        çizgiler yeni ölçüm değildir. **Sıcaklık etkisi** için benzer rota, hız ve klima koşullarında birden fazla
+        sürüş gerekir. 30 saniyelik mevcut API aralığı değiştirilmez.'
+    - type: heading
+      heading: Soğuk hava ve batarya eğilimi
+      heading_style: title
+      icon: mdi:thermometer-low
+    - type: entities
+      title: Karşılaştırmalı tüketim · Veri durumu
+      show_header_toggle: false
+      entities:
+      - entity: sensor.mg4_soguk_hava_menzil_cezasi
+        name: Soğuk hava tüketim farkı
+      - entity: sensor.mg4_batarya_performans_egilimi
+        name: Batarya performans eğilimi (SoH değil)
+      - entity: input_number.mg4_ek_soguk_sayisi
+        name: Soğuk sürüş sayısı
+      - entity: input_number.mg4_ek_ilik_sayisi
+        name: Ilık sürüş sayısı
+    - type: markdown
+      grid_options:
+        columns: full
+      content: '{% set soguk = states(''input_number.mg4_ek_soguk_sayisi'') | int(0) %}
+
+        {% set ilik = states(''input_number.mg4_ek_ilik_sayisi'') | int(0) %}
+
+        **Soğuk hava tüketim farkı:** 10°C altındaki sürüşlerle 15–25°C arasındaki sürüşlerin ortalama tüketim farkını
+        yüzde olarak gösterir. En az **5 soğuk + 5 ılık sürüş** gerekir.
+
+
+        - Soğuk sürüş: **{{ soguk }}/5** — **{{ [5 - soguk, 0] | max }} sürüş kaldı**.
+
+        - Ilık sürüş: **{{ ilik }}/5** — **{{ [5 - ilik, 0] | max }} sürüş kaldı**.
+
+
+        **Batarya performans eğilimi:** Benzer sıcaklıklardaki sürüşlerde enerji verimliliğinin zamanla değişimini
+        izler. En az **10 ılık sürüş** ve geçerli referans verisi gerekir.
+
+
+        - Performans eğilimi: **{{ ilik }}/10 ılık sürüş** — **{{ [10 - ilik, 0] | max }} sürüş kaldı**.
+
+
+        {% if soguk < 5 or ilik < 5 %}*Soğuk hava karşılaştırması için veri birikiyor.*{% endif %}
+
+        {% if ilik < 10 %}*Performans eğilimi için veri birikiyor.*{% endif %}
+
+
+        **Not:** Performans eğilimi gerçek batarya sağlığı (SoH) ölçümü değildir. Yeterli sürüş sayısına ulaşılması,
+        geçerli tüketim ve referans verisi bulunması şartını ortadan kaldırmaz.'
+    - type: heading
+      heading: Son sürüşe göre menzil · Hesap ayrıntıları
+      heading_style: title
+      icon: mdi:road-variant
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: sensor.mg4_son_surus_tahmini_menzil
+        name: Son sürüşe göre
+        icon: mdi:road-variant
+      - type: tile
+        entity: sensor.mg4_son_surus_100_menzil
+        name: '%100 eşdeğer menzil'
+        icon: mdi:speedometer
+    - type: entities
+      title: Son geçerli sürüşün ölçümleri
+      show_header_toggle: false
+      entities:
+      - entity: input_number.mg4_son_surus_km
+        name: Sürüş mesafesi (km)
+      - entity: input_number.mg4_son_surus_soc_kaybi
+        name: SoC düşüşü (puan)
+      - entity: input_datetime.mg4_son_surus_olcum_zamani
+        name: Ölçüm zamanı
+      grid_options:
+        columns: full
+    - type: markdown
+      content: '**Hesap:** Son geçerli sürüşteki `km ÷ SoC yüzde puanı düşüşü × 100` ile %100 eşdeğer menzil hesaplanır.
+        Kalan menzil, bu katsayı ile mevcut SoC çarpılarak tahmin edilir. Yalnızca **en az 3 km**, **en az 2 yüzde
+        puanı** düşüş ve makul aralık koşullarını sağlayan sürüşler kabul edilir. Şarj edilen sürüşler dışlanır.
+        **Bu bir batarya sağlığı (SOH) ölçümü değildir.** Kısa sürüşler, sıcaklık ve eşzamansız telemetri sonucu
+        ciddi sapma olabilir. İlk geçerli sürüş tamamlanana kadar tahmin gösterilmez.'
+      grid_options:
+        columns: full
+    - type: heading
+      heading: Enerji · Batarya ve şarj
+      heading_style: title
+      icon: mdi:lightning-bolt
+    - type: markdown
+      content: '**Nasıl okunur?** Dikey: batarya doluluğu (%) · Yatay: tarih ve saat.'
+    - type: custom:apexcharts-card
+      grid_options:
+        columns: full
+      header:
+        show: true
+        title: Batarya doluluk oranı (%) · Son 7 gün
+        show_states: false
+      graph_span: 7d
+      span:
+        end: minute
+      series:
+      - entity: sensor.lsjwh4096pn255997_soc
+        name: SoC (%)
+        type: area
+        stroke_width: 2
+        group_by:
+          func: avg
+          duration: 30min
+      yaxis:
+      - min: 0
+        max: 100
+      apex_config:
+        chart:
+          height: 260
+          toolbar:
+            show: false
+        xaxis:
+          type: datetime
+          labels:
+            datetimeUTC: false
+        yaxis:
+          title:
+            text: Batarya doluluğu (%)
+        legend:
+          show: false
+          position: bottom
+        tooltip:
+          shared: true
+          x:
+            format: dd MMM HH:mm
+        noData:
+          text: Bu aralıkta kayıtlı veri bulunmuyor
+    - type: markdown
+      content: '**Nasıl okunur?** Dikey: şarj gücü (kW) · Yatay: tarih ve saat · 0 kW = şarj yok.'
+    - type: custom:apexcharts-card
+      grid_options:
+        columns: full
+      header:
+        show: true
+        title: Şarj gücü (kW) · Son 48 saat
+        show_states: false
+      graph_span: 48h
+      span:
+        end: minute
+      series:
+      - entity: sensor.lsjwh4096pn255997_power
+        name: Şarj gücü (kW)
+        type: line
+        stroke_width: 2
+        group_by:
+          func: avg
+          duration: 10min
+      apex_config:
+        chart:
+          height: 260
+          toolbar:
+            show: false
+        xaxis:
+          type: datetime
+          labels:
+            datetimeUTC: false
+        yaxis:
+          title:
+            text: Şarj gücü (kW)
+        legend:
+          show: false
+          position: bottom
+        tooltip:
+          shared: true
+          x:
+            format: dd MMM HH:mm
+        noData:
+          text: Bu aralıkta kayıtlı veri bulunmuyor
+      yaxis:
+      - min: 0
+    - type: markdown
+      content: '**Nasıl okunur?** Dikey: depolanan enerji (kWh) · Yatay: tarih ve saat.'
+    - type: custom:apexcharts-card
+      grid_options:
+        columns: full
+      header:
+        show: true
+        title: Bataryada kalan enerji (kWh) · Son 7 gün
+        show_states: false
+      graph_span: 7d
+      span:
+        end: minute
+      series:
+      - entity: sensor.lsjwh4096pn255997_soc_kwh
+        name: Enerji (kWh)
+        type: area
+        stroke_width: 2
+        group_by:
+          func: avg
+          duration: 30min
+      apex_config:
+        chart:
+          height: 260
+          toolbar:
+            show: false
+        xaxis:
+          type: datetime
+          labels:
+            datetimeUTC: false
+        yaxis:
+          title:
+            text: Enerji (kWh)
+        legend:
+          show: false
+          position: bottom
+        tooltip:
+          shared: true
+          x:
+            format: dd MMM HH:mm
+        noData:
+          text: Bu aralıkta kayıtlı veri bulunmuyor
+      yaxis:
+      - min: 0
+    - type: heading
+      heading: Araç koşulları · Sıcaklık ve basınç
+      heading_style: title
+      icon: mdi:thermometer
+    - type: markdown
+      content: '**Nasıl okunur?** Dikey: sıcaklık (°C) · Yatay: tarih ve saat · İki çizgi karşılaştırılır.'
+    - type: custom:apexcharts-card
+      grid_options:
+        columns: full
+      header:
+        show: true
+        title: Kabin ve dış sıcaklık (°C) · Son 48 saat
+        show_states: false
+      graph_span: 48h
+      span:
+        end: minute
+      series:
+      - entity: sensor.lsjwh4096pn255997_interior_temperature
+        name: Kabin (°C)
+        type: line
+        stroke_width: 2
+        group_by:
+          func: avg
+          duration: 30min
+      - entity: sensor.lsjwh4096pn255997_exterior_temperature
+        name: Dış ortam (°C)
+        type: line
+        stroke_width: 2
+        group_by:
+          func: avg
+          duration: 30min
+      apex_config:
+        chart:
+          height: 260
+          toolbar:
+            show: false
+        xaxis:
+          type: datetime
+          labels:
+            datetimeUTC: false
+        yaxis:
+          title:
+            text: Sıcaklık (°C)
+        legend:
+          show: true
+          position: bottom
+        tooltip:
+          shared: true
+          x:
+            format: dd MMM HH:mm
+        noData:
+          text: Bu aralıkta kayıtlı veri bulunmuyor
+    - type: markdown
+      content: '**Nasıl okunur?** Dikey: akü gerilimi (V) · Yatay: tarih ve saat · Tek ölçüm arıza teşhisi değildir.'
+    - type: custom:apexcharts-card
+      grid_options:
+        columns: full
+      header:
+        show: true
+        title: 12V akü voltajı (V) · Son 7 gün
+        show_states: false
+      graph_span: 7d
+      span:
+        end: minute
+      series:
+      - entity: sensor.lsjwh4096pn255997_auxiliary_battery_voltage
+        name: 12V akü (V)
+        type: line
+        stroke_width: 2
+        group_by:
+          func: avg
+          duration: 30min
+      apex_config:
+        chart:
+          height: 260
+          toolbar:
+            show: false
+        xaxis:
+          type: datetime
+          labels:
+            datetimeUTC: false
+        yaxis:
+          title:
+            text: Gerilim (V)
+        legend:
+          show: false
+          position: bottom
+        tooltip:
+          shared: true
+          x:
+            format: dd MMM HH:mm
+        noData:
+          text: Bu aralıkta kayıtlı veri bulunmuyor
+    - type: markdown
+      content: '**Nasıl okunur?** Dikey: lastik basıncı (bar) · Yatay: tarih ve saat · Dört lastik karşılaştırılır.'
+    - type: custom:apexcharts-card
+      grid_options:
+        columns: full
+      header:
+        show: true
+        title: Lastik basınçları (bar) · Son 7 gün
+        show_states: false
+      graph_span: 7d
+      span:
+        end: minute
+      series:
+      - entity: sensor.lsjwh4096pn255997_tyres_front_left_pressure
+        name: Sol ön (bar)
+        type: line
+        stroke_width: 2
+        group_by:
+          func: avg
+          duration: 1h
+      - entity: sensor.lsjwh4096pn255997_tyres_front_right_pressure
+        name: Sağ ön (bar)
+        type: line
+        stroke_width: 2
+        group_by:
+          func: avg
+          duration: 1h
+      - entity: sensor.lsjwh4096pn255997_tyres_rear_left_pressure
+        name: Sol arka (bar)
+        type: line
+        stroke_width: 2
+        group_by:
+          func: avg
+          duration: 1h
+      - entity: sensor.lsjwh4096pn255997_tyres_rear_right_pressure
+        name: Sağ arka (bar)
+        type: line
+        stroke_width: 2
+        group_by:
+          func: avg
+          duration: 1h
+      apex_config:
+        chart:
+          height: 260
+          toolbar:
+            show: false
+        xaxis:
+          type: datetime
+          labels:
+            datetimeUTC: false
+        yaxis:
+          title:
+            text: Basınç (bar)
+        legend:
+          show: true
+          position: bottom
+        tooltip:
+          shared: true
+          x:
+            format: dd MMM HH:mm
+        noData:
+          text: Bu aralıkta kayıtlı veri bulunmuyor
+      yaxis:
+      - min: 0
+    - type: markdown
+      content: '**Yorumlama:** Şarj gücü grafiği, şarjın hangi aralıkta gerçekleştiğini gösterir. 12V akü gerilimindeki
+        eğilim ve lastik basınçlarının birbirine göre değişimi takip için faydalıdır; tek başına arıza teşhisi değildir.'
+    - type: heading
+      heading: Kullanım takvimi · Son 7 gün
+      heading_style: title
+      icon: mdi:calendar-check
+    - type: markdown
+      grid_options:
+        columns: full
+      content: '{% set names = [''Pzt'',''Sal'',''Çar'',''Per'',''Cum'',''Cmt'',''Paz''] %}
+
+        **Sürüş etkinliği** · Takvim gününe göre aracın *çalışır durumda* kaldığı süre
+
+
+        | Gün | Kullanım | Süre |
+
+        |:--|:--|--:|
+
+        {% for n in range(6,-1,-1) %}
+
+        {% set h = states(''sensor.mg4_surus_suresi_'' ~ n ~ ''g'') | float(-1) %}
+
+        {% set day = now() - timedelta(days=n) %}
+
+        | {{ names[day.weekday()] }} · {{ day.strftime(''%d.%m'') }} | {% if h < 0 %}⚪ Veri yok{% elif h < 0.05
+        %}▫️ Kullanım kaydı yok{% elif h < 0.5 %}🟩 Kısa{% elif h < 2 %}🟩🟩 Orta{% else %}🟩🟩🟩 Uzun{% endif %} | {%
+        if h < 0 %}—{% else %}{{ (h*60)|round(0)|int }} dk{% endif %} |
+
+        {% endfor %}
+
+
+        *Bu tablo kilometreyi değil, `vehicle_running` sensörünün açık kaldığı süreyi gösterir. Bugün henüz tamamlanmamıştır;
+        kayıt geçmişi eksikse değerler düşük çıkabilir.*'
+      card_mod:
+        style: 'ha-card { border-radius: 18px; }'
+    - type: heading
+      heading: Telemetri güvenilirliği
+      heading_style: title
+      icon: mdi:access-point-network
+    - type: grid
+      columns: 2
+      square: false
+      cards:
+      - type: tile
+        entity: sensor.mg4_veri_yasi_dakika
+        name: Son veri yaşı
+        icon: mdi:clock-check-outline
+      - type: tile
+        entity: sensor.lsjwh4096pn255997_last_vehicle_state
+        name: Son araç verisi
+        icon: mdi:car-clock
+    - type: history-graph
+      title: Son araç verisinin yaşı · 48 saat (dakika)
+      hours_to_show: 48
+      entities:
+      - entity: sensor.mg4_veri_yasi_dakika
+        name: Veri yaşı (dk)
+      grid_options:
+        columns: full
+    - type: markdown
+      content: '**Yorum:** Grafik yükseliyorsa araçtan yeni durum verisi alınmıyordur; sıfıra yakın düşüş yeni veri
+        alındığını gösterebilir. **Araç uyku modundayken uzun aralıklar normal olabilir.** Bu, API komut başarı
+        oranı değildir. Kaynak zaman damgası güncellenmezse grafik de gerçeği yansıtmayabilir.'
+      grid_options:
+        columns: full
+    - type: heading
+      heading: Kapasite verisi · Teknik referans
+      heading_style: title
+      icon: mdi:battery-heart-variant
+    - type: markdown
+      content: '**SoH hakkında:** API''deki toplam batarya kapasitesi ölçümü varsa geçmişteki değişimi izlenebilir.
+        Ancak bu değer sabit/nominal kapasite de olabilir. **Tek başına SoH yüzdesi değildir.** Gerçek kapasite
+        kaybı tahmini için güvenilir şarj kWh ölçümleri ve yeterli sayıda karşılaştırılabilir şarj oturumu gerekir.'
+    - type: history-graph
+      title: API toplam batarya kapasitesi · Son 30 gün
+      hours_to_show: 720
+      entities:
+      - entity: sensor.lsjwh4096pn255997_total_battery_capacity
+        name: Bildirilen kapasite
+      grid_options:
+        columns: full
+    - type: markdown
+      grid_options:
+        columns: full
+      content: '**Veri kaynağı:** Grafikler Home Assistant Recorder geçmişini kullanır. Araç uyku modunda kayıt
+        aralıkları uzayabilir. Bu görünüm yeni API sorgusu başlatmaz.'
+- title: Sistem
+  path: sistem
+  icon: mdi:cog-outline
+  type: sections
+  max_columns: 1
+  sections:
+  - type: grid
+    cards:
+    - type: heading
+      heading: Sistem · Bağlantı ve veri durumu
+      heading_style: title
+    - type: markdown
+      content: "{%- macro tr_sure(t) -%}\n{%- set saniye = [0, (as_timestamp(now()) - as_timestamp(t, as_timestamp(now())))\
+        \ | int] | max -%}\n{%- if saniye < 60 -%}az önce\n{%- elif saniye < 3600 -%}{{ saniye // 60 }} dakika önce\n\
+        {%- elif saniye < 86400 -%}{{ saniye // 3600 }} saat önce\n{%- elif saniye < 2592000 -%}{{ saniye // 86400\
+        \ }} gün önce\n{%- elif saniye < 31536000 -%}{{ saniye // 2592000 }} ay önce\n{%- else -%}{{ saniye // 31536000\
+        \ }} yıl önce\n{%- endif -%}\n{%- endmacro -%}\n### Son veri ve komut durumu\n\n{% set sensors = [\n  ('\U0001F697\
+        \ Son araç verisi', 'sensor.mg4_tr_last_vehicle_state'),\n  ('⚡ Son şarj verisi', 'sensor.mg4_tr_last_charge_state'),\n\
+        \  ('\U0001F552 Son araç etkinliği', 'sensor.mg4_tr_last_car_activity')\n] %}\n{% for label, entity in sensors\
+        \ %}\n{% set raw = states(entity) %}\n{% set dt = as_datetime(raw, none) %}\n**{{ label }}:** {% if dt is\
+        \ not none %}{{ tr_sure(dt) }}{% elif raw in ['unknown','unavailable','none',''] %}Bilinmiyor{% else %}{{\
+        \ raw }}{% endif %}  \n{% endfor %}\n{% set poll = states.sensor.mg4_tr_last_poll_error %}\n**⚠️ Son veri\
+        \ sorgulama hatası:** {% if poll is none or poll.state in ['unknown','unavailable','none',''] %}Bilinmiyor{%\
+        \ elif poll.state | lower in ['ok','none','no error','yok','false','0'] %}Hata yok{% else %}{{ tr_sure(poll.last_changed)\
+        \ }}{% endif %}  \n{% set cmd = states['event.lsjwh4096pn255997_command_error'] %}\n{% set cmd_time = as_datetime(cmd.state,\
+        \ none) if cmd is not none else none %}\n**❗ Komut gönderme hatası:** {% if cmd_time is not none %}{{ tr_sure(cmd_time)\
+        \ }}{% else %}Kayıt yok{% endif %}  \n{% set msg = states['event.lsjwh4096pn255997_vehicle_message'] %}\n\
+        {% set msg_time = as_datetime(msg.state, none) if msg is not none else none %}\n**\U0001F4AC Araçtan gelen\
+        \ bildirim:** {% if msg_time is not none %}{{ tr_sure(msg_time) }}{% else %}Kayıt yok{% endif %}\n"
+      grid_options:
+        columns: full
+      card_mod:
+        style: ha-card {border-radius:18px;border:1px solid var(--divider-color);padding:8px 10px;}
+    - type: markdown
+      content: '{%- macro tr_sure(t) -%}
+
+        {%- set saniye = [0, (as_timestamp(now()) - as_timestamp(t, as_timestamp(now()))) | int] | max -%}
+
+        {%- if saniye < 60 -%}az önce
+
+        {%- elif saniye < 3600 -%}{{ saniye // 60 }} dakika önce
+
+        {%- elif saniye < 86400 -%}{{ saniye // 3600 }} saat önce
+
+        {%- elif saniye < 2592000 -%}{{ saniye // 86400 }} gün önce
+
+        {%- elif saniye < 31536000 -%}{{ saniye // 2592000 }} ay önce
+
+        {%- else -%}{{ saniye // 31536000 }} yıl önce
+
+        {%- endif -%}
+
+        {%- endmacro -%}
+
+        ### <ha-icon icon="mdi:message-text-outline"></ha-icon> Araçtan gelen son bildirim
+
+
+        {% set e = states[''event.lsjwh4096pn255997_vehicle_message''] %}
+
+        {% set dt = as_datetime(e.state, none) if e is not none else none %}
+
+        {% if dt is none %}
+
+        Henüz kayıtlı araç bildirimi yok.
+
+        {% else %}
+
+        {% set a = e.attributes %}
+
+        {% set body = a.get(''message'') or a.get(''description'') or a.get(''text'') or a.get(''notification'')
+        or a.get(''event_type'') %}
+
+        {% if body %}
+
+        > {{ body | string | replace(''\n'', '' '') }}
+
+        {% else %}
+
+        Bildirim alındı. Ayrıntı için aşağıdaki olay kaydını açın.
+
+        {% endif %}
+
+
+        <small>Son bildirim: {{ tr_sure(dt) }}</small>
+
+        {% endif %}
+
+        '
+      grid_options:
+        columns: full
+      card_mod:
+        style: 'ha-card {border-radius:18px;border:1px solid rgba(99,219,177,.45);background:rgba(99,219,177,.055);padding:6px
+          8px;} '
+    - type: heading
+      heading: Gateway · Yenileme ve tanılama
+      heading_style: title
+    - type: entities
+      title: Veri yenileme ayarları (mevcut değerler)
+      show_header_toggle: false
+      entities:
+      - entity: select.lsjwh4096pn255997_gateway_refresh_mode
+        name: Yenileme modu
+      - entity: number.lsjwh4096pn255997_gateway_active_refresh_period
+        name: Araç aktifken sorgulama aralığı
+      - entity: number.lsjwh4096pn255997_gateway_inactive_refresh_period
+        name: Araç pasifken sorgulama aralığı
+      - entity: number.lsjwh4096pn255997_gateway_refresh_period_after_car_shutdown
+        name: Araç kapandıktan sonra
+      - entity: number.lsjwh4096pn255997_gateway_grace_period_after_car_shutdown
+        name: Bekleme süresi
+      - entity: sensor.lsjwh4096pn255997_gateway_charging_refresh_period
+        name: Şarj verisi yenileme aralığı
+      - entity: sensor.lsjwh4096pn255997_gateway_error_refresh_period
+        name: Hata kontrol aralığı
+      - entity: sensor.mg4_tr_gateway_polling_phase
+        name: Sorgulama durumu
+      card_mod:
+        style: 'ha-card { border-radius: 18px !important; border: 1px solid var(--divider-color); box-shadow: 0
+          4px 18px rgba(0,0,0,.09); overflow: hidden; }'
+    - type: markdown
+      content: '**Not:** Çok sık sorgulama 12V aküyü tüketebilir. `Find My Car` entity durumu `unknown` olduğunda
+        komutun çalışacağı garanti değildir. Hedef SoC komutu da gateway tarafından reddedilebilir.'
