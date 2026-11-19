@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.components import persistent_notification
 from homeassistant.helpers import selector
 from .discovery import find_vehicles
 from .installer import ExistingFilesError, prepare_files, VIN_RE
@@ -53,6 +54,16 @@ class MG4CockpitConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             _LOGGER.exception("MG4 Cockpit files could not be prepared")
             error = "write_failed"
         else:
+            # YAML packages are read during Home Assistant startup. Show this
+            # once, immediately after the assets are generated, not on every boot.
+            persistent_notification.async_create(
+                self.hass,
+                "MG4 Cockpit panon oluşturuldu. Türkçe durumlar ve sürüş analizleri gibi "
+                "yeni sensörlerin çalışması için Home Assistant'ı bir kez daha yeniden başlat. "
+                "Yeniden başlatmadan önce bazı kartlarda 'Unavailable' görmen normal.",
+                title="MG4 Cockpit – Kurulum tamamlandı",
+                notification_id="mg4_cockpit_restart_required",
+            )
             # Do not store VIN in the config entry; it is present in the generated local YAML.
             return self.async_create_entry(title="MG4 Cockpit Kurulum", data={})
         if step_id == "vehicle":

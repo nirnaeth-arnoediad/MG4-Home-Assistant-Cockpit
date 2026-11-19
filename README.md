@@ -26,6 +26,12 @@ MG4 Cockpit, SAIC iSmart MQTT Gateway ile Home Assistant'a aktarılan araç bilg
 
 `configuration.yaml` dosyasına pano kaydı eklenmez. MG4 paketlerinin çalışması için Home Assistant'ta `homeassistant.packages` ayarı **önceden etkin** olmalıdır; bu sürüm o ayarı da değiştirmez. İlk kurulumda üretilen YAML paketleri için yeniden başlatma gerekebilir. EPİAŞ isteğe bağlıdır.
 
+### v0.4 sürümünden yükseltme
+
+v0.4'ün `configuration.yaml` dosyasına eklediği `lovelace: dashboards: mg4-cockpit-hacs:` kaydı **otomatik silinmez**. Kayıt duruyorsa v0.5 aynı adresi kullanarak ikinci pano oluşturmaz. Geçişten önce Home Assistant yedeği alıp yalnızca v0.4'ün eklediği MG4 pano tanımını elle kaldırmak ve Home Assistant'ı yeniden başlatmak gerekir. Diğer `lovelace` ayarlarına dokunma. Eski pano ve paket dosyalarını silme.
+
+**Beta notu:** Depolama tabanlı otomatik pano kaydı, Home Assistant Core 2026.11.2 üzerinde henüz gerçek sistem testi görmedi. Home Assistant'ın dahili API'lerine dayanır; sürümler arasında değişebilir. Pano oluşmazsa günlükleri kontrol et.
+
 ## Güvenlik
 
 - VIN yalnızca yerel üretilen YAML dosyalarında kullanılır. Bu dosyaları herkese açık GitHub deposuna yüklemeyin.
@@ -37,3 +43,16 @@ MG4 Cockpit, SAIC iSmart MQTT Gateway ile Home Assistant'a aktarılan araç bilg
 ## Kaynak ve teşekkür
 
 Araç iletişiminde [SAIC Python MQTT Gateway](https://github.com/SAIC-iSmart-API/saic-python-mqtt-gateway) kullanılır. Geliştirici **[nanomad](https://github.com/SAIC-iSmart-API/saic-python-mqtt-gateway/commits?author=nanomad)** ve katkıda bulunanlara teşekkürler. MG4 Cockpit'e özgü dashboard, YAML ve kurulum bileşeni proje sahibinin yönlendirmeleriyle ChatGPT yardımıyla hazırlanmıştır.
+
+### İsteğe bağlı EPİAŞ
+
+EPİAŞ sensörü (`sensor.epias_guncel_ptf_kwh_2`) kullanılmıyorsa şarj ekranındaki Güncel PTF, Tahmini toplam fiyat ve ilgili tarife açıklaması gizlenir. Sensör kullanılabilir duruma geldiğinde kartlar görünür. Diğer şarj işlevleri EPİAŞ olmadan çalışır.
+
+
+### İlk kurulumdan sonra
+
+HACS üzerinden indirdikten sonra Home Assistant'ı yeniden başlatın ve MG4 Cockpit entegrasyonunu ekleyerek aracınızı seçin. Pano hemen oluşturulur; ancak beş YAML paketindeki sensörlerin etkinleşmesi için **araç seçiminin ardından bir kez daha yeniden başlatmanız gerekir**. Bu hatırlatma Home Assistant bildirimi olarak da gösterilir. `configuration.yaml` dosyasına pano kaydı eklenmez.
+
+### İsteğe bağlı EPİAŞ
+
+EPİAŞ sensörü `sensor.epias_guncel_ptf_kwh_2` mevcut ve kullanılabilir olduğunda Güncel PTF ve buna bağlı tahmini fiyat kartları gösterilir. Sensör yoksa veya `unknown` / `unavailable` durumundaysa ilgili kartlar gizlenir. Bu koşul yalnızca yeni oluşturulan dashboard için geçerlidir; daha önce oluşturulmuş UI panoları otomatik olarak değiştirilmez.
