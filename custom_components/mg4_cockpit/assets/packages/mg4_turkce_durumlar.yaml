@@ -1,0 +1,302 @@
+template:
+- sensor:
+  - name: MG4 TR Scheduled Charging Mode
+    unique_id: mg4_tr_scheduled_charging_mode
+    default_entity_id: sensor.mg4_tr_scheduled_charging_mode
+    state: '{% set sozluk = {''unknown'': ''Durum bilinmiyor'', ''unavailable'': ''Veri alınamıyor'', ''none'': ''Yok'', ''null'':
+      ''Yok'', ''idle'': ''Beklemede'', ''inactive'': ''Pasif'', ''active'': ''Aktif'', ''on'': ''Açık'', ''off'': ''Kapalı'',
+      ''true'': ''Evet'', ''false'': ''Hayır'', ''locked'': ''Kilitli'', ''unlocked'': ''Kilit açık'', ''locking'': ''Kilitleniyor'',
+      ''unlocking'': ''Kilit açılıyor'', ''plugged in'': ''Kablo takılı'', ''plugged_in'': ''Kablo takılı'', ''plugged'':
+      ''Kablo takılı'', ''connected'': ''Bağlı'', ''disconnected'': ''Bağlı değil'', ''unplugged'': ''Kablo çıkarılmış'',
+      ''not plugged in'': ''Kablo takılı değil'', ''not_plugged_in'': ''Kablo takılı değil'', ''charging'': ''Şarj oluyor'',
+      ''not charging'': ''Şarj olmuyor'', ''not_charging'': ''Şarj olmuyor'', ''charge complete'': ''Şarj tamamlandı'', ''charge_complete'':
+      ''Şarj tamamlandı'', ''completed'': ''Tamamlandı'', ''complete'': ''Tamamlandı'', ''finished'': ''Tamamlandı'', ''stopped'':
+      ''Durduruldu'', ''stopping'': ''Durduruluyor'', ''starting'': ''Başlatılıyor'', ''paused'': ''Duraklatıldı'', ''scheduled'':
+      ''Planlandı'', ''waiting'': ''Bekliyor'', ''waiting for charge'': ''Şarj bekleniyor'', ''heating'': ''Isıtıyor'', ''cooling'':
+      ''Soğutuyor'', ''auto'': ''Otomatik'', ''automatic'': ''Otomatik'', ''manual'': ''Manuel'', ''disabled'': ''Devre dışı'',
+      ''enabled'': ''Etkin'', ''normal'': ''Normal'', ''eco'': ''Ekonomik'', ''fast'': ''Hızlı'', ''running'': ''Çalışıyor'',
+      ''parked'': ''Park halinde'', ''driving'': ''Sürüşte'', ''sleeping'': ''Uyku modunda'', ''asleep'': ''Uyku modunda'',
+      ''awake'': ''Uyanık'', ''refreshing'': ''Güncelleniyor'', ''polling'': ''Veri sorgulanıyor'', ''error'': ''Hata'', ''failed'':
+      ''Başarısız'', ''success'': ''Başarılı'', ''ok'': ''Normal'', ''ready'': ''Hazır'', ''immediate'': ''Hemen'', ''immediate
+      charging'': ''Hemen şarj'', ''scheduled charging'': ''Planlı şarj'', ''no schedule'': ''Plan yok'', ''no_schedule'':
+      ''Plan yok'', ''open'': ''Açık'', ''closed'': ''Kapalı'', ''defrosting'': ''Buğu çözülüyor'', ''defrost'': ''Buğu çözme''}
+      %}{% set s = states(''sensor.YOUR_VIN_scheduled_charging_mode'') %}{% set t = s | lower | trim %}{{ sozluk.get(t,
+      s) }}'
+    icon: mdi:calendar-clock
+  - name: MG4 TR Remote Climate State
+    unique_id: mg4_tr_remote_climate_state
+    default_entity_id: sensor.mg4_tr_remote_climate_state
+    state: '{% set sozluk = {''unknown'': ''Durum bilinmiyor'', ''unavailable'': ''Veri alınamıyor'', ''none'': ''Yok'', ''null'':
+      ''Yok'', ''idle'': ''Beklemede'', ''inactive'': ''Pasif'', ''active'': ''Aktif'', ''on'': ''Açık'', ''off'': ''Kapalı'',
+      ''true'': ''Evet'', ''false'': ''Hayır'', ''locked'': ''Kilitli'', ''unlocked'': ''Kilit açık'', ''locking'': ''Kilitleniyor'',
+      ''unlocking'': ''Kilit açılıyor'', ''plugged in'': ''Kablo takılı'', ''plugged_in'': ''Kablo takılı'', ''plugged'':
+      ''Kablo takılı'', ''connected'': ''Bağlı'', ''disconnected'': ''Bağlı değil'', ''unplugged'': ''Kablo çıkarılmış'',
+      ''not plugged in'': ''Kablo takılı değil'', ''not_plugged_in'': ''Kablo takılı değil'', ''charging'': ''Şarj oluyor'',
+      ''not charging'': ''Şarj olmuyor'', ''not_charging'': ''Şarj olmuyor'', ''charge complete'': ''Şarj tamamlandı'', ''charge_complete'':
+      ''Şarj tamamlandı'', ''completed'': ''Tamamlandı'', ''complete'': ''Tamamlandı'', ''finished'': ''Tamamlandı'', ''stopped'':
+      ''Durduruldu'', ''stopping'': ''Durduruluyor'', ''starting'': ''Başlatılıyor'', ''paused'': ''Duraklatıldı'', ''scheduled'':
+      ''Planlandı'', ''waiting'': ''Bekliyor'', ''waiting for charge'': ''Şarj bekleniyor'', ''heating'': ''Isıtıyor'', ''cooling'':
+      ''Soğutuyor'', ''auto'': ''Otomatik'', ''automatic'': ''Otomatik'', ''manual'': ''Manuel'', ''disabled'': ''Devre dışı'',
+      ''enabled'': ''Etkin'', ''normal'': ''Normal'', ''eco'': ''Ekonomik'', ''fast'': ''Hızlı'', ''running'': ''Çalışıyor'',
+      ''parked'': ''Park halinde'', ''driving'': ''Sürüşte'', ''sleeping'': ''Uyku modunda'', ''asleep'': ''Uyku modunda'',
+      ''awake'': ''Uyanık'', ''refreshing'': ''Güncelleniyor'', ''polling'': ''Veri sorgulanıyor'', ''error'': ''Hata'', ''failed'':
+      ''Başarısız'', ''success'': ''Başarılı'', ''ok'': ''Normal'', ''ready'': ''Hazır'', ''immediate'': ''Hemen'', ''immediate
+      charging'': ''Hemen şarj'', ''scheduled charging'': ''Planlı şarj'', ''no schedule'': ''Plan yok'', ''no_schedule'':
+      ''Plan yok'', ''open'': ''Açık'', ''closed'': ''Kapalı'', ''defrosting'': ''Buğu çözülüyor'', ''defrost'': ''Buğu çözme''}
+      %}{% set s = states(''sensor.YOUR_VIN_remote_climate_state'') %}{% set t = s | lower | trim %}{{ sozluk.get(t,
+      s) }}'
+    icon: mdi:air-conditioner
+  - name: MG4 TR Rear Window Defroster Heating
+    unique_id: mg4_tr_rear_window_defroster_heating
+    default_entity_id: sensor.mg4_tr_rear_window_defroster_heating
+    state: '{% set sozluk = {''unknown'': ''Durum bilinmiyor'', ''unavailable'': ''Veri alınamıyor'', ''none'': ''Yok'', ''null'':
+      ''Yok'', ''idle'': ''Beklemede'', ''inactive'': ''Pasif'', ''active'': ''Aktif'', ''on'': ''Açık'', ''off'': ''Kapalı'',
+      ''true'': ''Evet'', ''false'': ''Hayır'', ''locked'': ''Kilitli'', ''unlocked'': ''Kilit açık'', ''locking'': ''Kilitleniyor'',
+      ''unlocking'': ''Kilit açılıyor'', ''plugged in'': ''Kablo takılı'', ''plugged_in'': ''Kablo takılı'', ''plugged'':
+      ''Kablo takılı'', ''connected'': ''Bağlı'', ''disconnected'': ''Bağlı değil'', ''unplugged'': ''Kablo çıkarılmış'',
+      ''not plugged in'': ''Kablo takılı değil'', ''not_plugged_in'': ''Kablo takılı değil'', ''charging'': ''Şarj oluyor'',
+      ''not charging'': ''Şarj olmuyor'', ''not_charging'': ''Şarj olmuyor'', ''charge complete'': ''Şarj tamamlandı'', ''charge_complete'':
+      ''Şarj tamamlandı'', ''completed'': ''Tamamlandı'', ''complete'': ''Tamamlandı'', ''finished'': ''Tamamlandı'', ''stopped'':
+      ''Durduruldu'', ''stopping'': ''Durduruluyor'', ''starting'': ''Başlatılıyor'', ''paused'': ''Duraklatıldı'', ''scheduled'':
+      ''Planlandı'', ''waiting'': ''Bekliyor'', ''waiting for charge'': ''Şarj bekleniyor'', ''heating'': ''Isıtıyor'', ''cooling'':
+      ''Soğutuyor'', ''auto'': ''Otomatik'', ''automatic'': ''Otomatik'', ''manual'': ''Manuel'', ''disabled'': ''Devre dışı'',
+      ''enabled'': ''Etkin'', ''normal'': ''Normal'', ''eco'': ''Ekonomik'', ''fast'': ''Hızlı'', ''running'': ''Çalışıyor'',
+      ''parked'': ''Park halinde'', ''driving'': ''Sürüşte'', ''sleeping'': ''Uyku modunda'', ''asleep'': ''Uyku modunda'',
+      ''awake'': ''Uyanık'', ''refreshing'': ''Güncelleniyor'', ''polling'': ''Veri sorgulanıyor'', ''error'': ''Hata'', ''failed'':
+      ''Başarısız'', ''success'': ''Başarılı'', ''ok'': ''Normal'', ''ready'': ''Hazır'', ''immediate'': ''Hemen'', ''immediate
+      charging'': ''Hemen şarj'', ''scheduled charging'': ''Planlı şarj'', ''no schedule'': ''Plan yok'', ''no_schedule'':
+      ''Plan yok'', ''open'': ''Açık'', ''closed'': ''Kapalı'', ''defrosting'': ''Buğu çözülüyor'', ''defrost'': ''Buğu çözme''}
+      %}{% set s = states(''sensor.YOUR_VIN_rear_window_defroster_heating'') %}{% set t = s | lower | trim %}{{ sozluk.get(t,
+      s) }}'
+    icon: mdi:car-defrost-rear
+  - name: MG4 TR Gateway Polling Phase
+    unique_id: mg4_tr_gateway_polling_phase
+    default_entity_id: sensor.mg4_tr_gateway_polling_phase
+    state: '{% set sozluk = {''unknown'': ''Durum bilinmiyor'', ''unavailable'': ''Veri alınamıyor'', ''none'': ''Yok'', ''null'':
+      ''Yok'', ''idle'': ''Beklemede'', ''inactive'': ''Pasif'', ''active'': ''Aktif'', ''on'': ''Açık'', ''off'': ''Kapalı'',
+      ''true'': ''Evet'', ''false'': ''Hayır'', ''locked'': ''Kilitli'', ''unlocked'': ''Kilit açık'', ''locking'': ''Kilitleniyor'',
+      ''unlocking'': ''Kilit açılıyor'', ''plugged in'': ''Kablo takılı'', ''plugged_in'': ''Kablo takılı'', ''plugged'':
+      ''Kablo takılı'', ''connected'': ''Bağlı'', ''disconnected'': ''Bağlı değil'', ''unplugged'': ''Kablo çıkarılmış'',
+      ''not plugged in'': ''Kablo takılı değil'', ''not_plugged_in'': ''Kablo takılı değil'', ''charging'': ''Şarj oluyor'',
+      ''not charging'': ''Şarj olmuyor'', ''not_charging'': ''Şarj olmuyor'', ''charge complete'': ''Şarj tamamlandı'', ''charge_complete'':
+      ''Şarj tamamlandı'', ''completed'': ''Tamamlandı'', ''complete'': ''Tamamlandı'', ''finished'': ''Tamamlandı'', ''stopped'':
+      ''Durduruldu'', ''stopping'': ''Durduruluyor'', ''starting'': ''Başlatılıyor'', ''paused'': ''Duraklatıldı'', ''scheduled'':
+      ''Planlandı'', ''waiting'': ''Bekliyor'', ''waiting for charge'': ''Şarj bekleniyor'', ''heating'': ''Isıtıyor'', ''cooling'':
+      ''Soğutuyor'', ''auto'': ''Otomatik'', ''automatic'': ''Otomatik'', ''manual'': ''Manuel'', ''disabled'': ''Devre dışı'',
+      ''enabled'': ''Etkin'', ''normal'': ''Normal'', ''eco'': ''Ekonomik'', ''fast'': ''Hızlı'', ''running'': ''Çalışıyor'',
+      ''parked'': ''Park halinde'', ''driving'': ''Sürüşte'', ''sleeping'': ''Uyku modunda'', ''asleep'': ''Uyku modunda'',
+      ''awake'': ''Uyanık'', ''refreshing'': ''Güncelleniyor'', ''polling'': ''Veri sorgulanıyor'', ''error'': ''Hata'', ''failed'':
+      ''Başarısız'', ''success'': ''Başarılı'', ''ok'': ''Normal'', ''ready'': ''Hazır'', ''immediate'': ''Hemen'', ''immediate
+      charging'': ''Hemen şarj'', ''scheduled charging'': ''Planlı şarj'', ''no schedule'': ''Plan yok'', ''no_schedule'':
+      ''Plan yok'', ''open'': ''Açık'', ''closed'': ''Kapalı'', ''defrosting'': ''Buğu çözülüyor'', ''defrost'': ''Buğu çözme''}
+      %}{% set s = states(''sensor.YOUR_VIN_gateway_polling_phase'') %}{% set t = s | lower | trim %}{{ sozluk.get(t,
+      s) }}'
+    icon: mdi:cloud-sync
+  - name: MG4 TR Last Vehicle State
+    unique_id: mg4_tr_last_vehicle_state
+    default_entity_id: sensor.mg4_tr_last_vehicle_state
+    state: '{% set sozluk = {''unknown'': ''Durum bilinmiyor'', ''unavailable'': ''Veri alınamıyor'', ''none'': ''Yok'', ''null'':
+      ''Yok'', ''idle'': ''Beklemede'', ''inactive'': ''Pasif'', ''active'': ''Aktif'', ''on'': ''Açık'', ''off'': ''Kapalı'',
+      ''true'': ''Evet'', ''false'': ''Hayır'', ''locked'': ''Kilitli'', ''unlocked'': ''Kilit açık'', ''locking'': ''Kilitleniyor'',
+      ''unlocking'': ''Kilit açılıyor'', ''plugged in'': ''Kablo takılı'', ''plugged_in'': ''Kablo takılı'', ''plugged'':
+      ''Kablo takılı'', ''connected'': ''Bağlı'', ''disconnected'': ''Bağlı değil'', ''unplugged'': ''Kablo çıkarılmış'',
+      ''not plugged in'': ''Kablo takılı değil'', ''not_plugged_in'': ''Kablo takılı değil'', ''charging'': ''Şarj oluyor'',
+      ''not charging'': ''Şarj olmuyor'', ''not_charging'': ''Şarj olmuyor'', ''charge complete'': ''Şarj tamamlandı'', ''charge_complete'':
+      ''Şarj tamamlandı'', ''completed'': ''Tamamlandı'', ''complete'': ''Tamamlandı'', ''finished'': ''Tamamlandı'', ''stopped'':
+      ''Durduruldu'', ''stopping'': ''Durduruluyor'', ''starting'': ''Başlatılıyor'', ''paused'': ''Duraklatıldı'', ''scheduled'':
+      ''Planlandı'', ''waiting'': ''Bekliyor'', ''waiting for charge'': ''Şarj bekleniyor'', ''heating'': ''Isıtıyor'', ''cooling'':
+      ''Soğutuyor'', ''auto'': ''Otomatik'', ''automatic'': ''Otomatik'', ''manual'': ''Manuel'', ''disabled'': ''Devre dışı'',
+      ''enabled'': ''Etkin'', ''normal'': ''Normal'', ''eco'': ''Ekonomik'', ''fast'': ''Hızlı'', ''running'': ''Çalışıyor'',
+      ''parked'': ''Park halinde'', ''driving'': ''Sürüşte'', ''sleeping'': ''Uyku modunda'', ''asleep'': ''Uyku modunda'',
+      ''awake'': ''Uyanık'', ''refreshing'': ''Güncelleniyor'', ''polling'': ''Veri sorgulanıyor'', ''error'': ''Hata'', ''failed'':
+      ''Başarısız'', ''success'': ''Başarılı'', ''ok'': ''Normal'', ''ready'': ''Hazır'', ''immediate'': ''Hemen'', ''immediate
+      charging'': ''Hemen şarj'', ''scheduled charging'': ''Planlı şarj'', ''no schedule'': ''Plan yok'', ''no_schedule'':
+      ''Plan yok'', ''open'': ''Açık'', ''closed'': ''Kapalı'', ''defrosting'': ''Buğu çözülüyor'', ''defrost'': ''Buğu çözme''}
+      %}{% set s = states(''sensor.YOUR_VIN_last_vehicle_state'') %}{% set t = s | lower | trim %}{{ sozluk.get(t,
+      s) }}'
+    icon: mdi:car-info
+  - name: MG4 TR Last Charge State
+    unique_id: mg4_tr_last_charge_state
+    default_entity_id: sensor.mg4_tr_last_charge_state
+    state: '{% set sozluk = {''unknown'': ''Durum bilinmiyor'', ''unavailable'': ''Veri alınamıyor'', ''none'': ''Yok'', ''null'':
+      ''Yok'', ''idle'': ''Beklemede'', ''inactive'': ''Pasif'', ''active'': ''Aktif'', ''on'': ''Açık'', ''off'': ''Kapalı'',
+      ''true'': ''Evet'', ''false'': ''Hayır'', ''locked'': ''Kilitli'', ''unlocked'': ''Kilit açık'', ''locking'': ''Kilitleniyor'',
+      ''unlocking'': ''Kilit açılıyor'', ''plugged in'': ''Kablo takılı'', ''plugged_in'': ''Kablo takılı'', ''plugged'':
+      ''Kablo takılı'', ''connected'': ''Bağlı'', ''disconnected'': ''Bağlı değil'', ''unplugged'': ''Kablo çıkarılmış'',
+      ''not plugged in'': ''Kablo takılı değil'', ''not_plugged_in'': ''Kablo takılı değil'', ''charging'': ''Şarj oluyor'',
+      ''not charging'': ''Şarj olmuyor'', ''not_charging'': ''Şarj olmuyor'', ''charge complete'': ''Şarj tamamlandı'', ''charge_complete'':
+      ''Şarj tamamlandı'', ''completed'': ''Tamamlandı'', ''complete'': ''Tamamlandı'', ''finished'': ''Tamamlandı'', ''stopped'':
+      ''Durduruldu'', ''stopping'': ''Durduruluyor'', ''starting'': ''Başlatılıyor'', ''paused'': ''Duraklatıldı'', ''scheduled'':
+      ''Planlandı'', ''waiting'': ''Bekliyor'', ''waiting for charge'': ''Şarj bekleniyor'', ''heating'': ''Isıtıyor'', ''cooling'':
+      ''Soğutuyor'', ''auto'': ''Otomatik'', ''automatic'': ''Otomatik'', ''manual'': ''Manuel'', ''disabled'': ''Devre dışı'',
+      ''enabled'': ''Etkin'', ''normal'': ''Normal'', ''eco'': ''Ekonomik'', ''fast'': ''Hızlı'', ''running'': ''Çalışıyor'',
+      ''parked'': ''Park halinde'', ''driving'': ''Sürüşte'', ''sleeping'': ''Uyku modunda'', ''asleep'': ''Uyku modunda'',
+      ''awake'': ''Uyanık'', ''refreshing'': ''Güncelleniyor'', ''polling'': ''Veri sorgulanıyor'', ''error'': ''Hata'', ''failed'':
+      ''Başarısız'', ''success'': ''Başarılı'', ''ok'': ''Normal'', ''ready'': ''Hazır'', ''immediate'': ''Hemen'', ''immediate
+      charging'': ''Hemen şarj'', ''scheduled charging'': ''Planlı şarj'', ''no schedule'': ''Plan yok'', ''no_schedule'':
+      ''Plan yok'', ''open'': ''Açık'', ''closed'': ''Kapalı'', ''defrosting'': ''Buğu çözülüyor'', ''defrost'': ''Buğu çözme''}
+      %}{% set s = states(''sensor.YOUR_VIN_last_charge_state'') %}{% set t = s | lower | trim %}{{ sozluk.get(t,
+      s) }}'
+    icon: mdi:ev-station
+  - name: MG4 TR Last Car Activity
+    unique_id: mg4_tr_last_car_activity
+    default_entity_id: sensor.mg4_tr_last_car_activity
+    state: '{% set sozluk = {''unknown'': ''Durum bilinmiyor'', ''unavailable'': ''Veri alınamıyor'', ''none'': ''Yok'', ''null'':
+      ''Yok'', ''idle'': ''Beklemede'', ''inactive'': ''Pasif'', ''active'': ''Aktif'', ''on'': ''Açık'', ''off'': ''Kapalı'',
+      ''true'': ''Evet'', ''false'': ''Hayır'', ''locked'': ''Kilitli'', ''unlocked'': ''Kilit açık'', ''locking'': ''Kilitleniyor'',
+      ''unlocking'': ''Kilit açılıyor'', ''plugged in'': ''Kablo takılı'', ''plugged_in'': ''Kablo takılı'', ''plugged'':
+      ''Kablo takılı'', ''connected'': ''Bağlı'', ''disconnected'': ''Bağlı değil'', ''unplugged'': ''Kablo çıkarılmış'',
+      ''not plugged in'': ''Kablo takılı değil'', ''not_plugged_in'': ''Kablo takılı değil'', ''charging'': ''Şarj oluyor'',
+      ''not charging'': ''Şarj olmuyor'', ''not_charging'': ''Şarj olmuyor'', ''charge complete'': ''Şarj tamamlandı'', ''charge_complete'':
+      ''Şarj tamamlandı'', ''completed'': ''Tamamlandı'', ''complete'': ''Tamamlandı'', ''finished'': ''Tamamlandı'', ''stopped'':
+      ''Durduruldu'', ''stopping'': ''Durduruluyor'', ''starting'': ''Başlatılıyor'', ''paused'': ''Duraklatıldı'', ''scheduled'':
+      ''Planlandı'', ''waiting'': ''Bekliyor'', ''waiting for charge'': ''Şarj bekleniyor'', ''heating'': ''Isıtıyor'', ''cooling'':
+      ''Soğutuyor'', ''auto'': ''Otomatik'', ''automatic'': ''Otomatik'', ''manual'': ''Manuel'', ''disabled'': ''Devre dışı'',
+      ''enabled'': ''Etkin'', ''normal'': ''Normal'', ''eco'': ''Ekonomik'', ''fast'': ''Hızlı'', ''running'': ''Çalışıyor'',
+      ''parked'': ''Park halinde'', ''driving'': ''Sürüşte'', ''sleeping'': ''Uyku modunda'', ''asleep'': ''Uyku modunda'',
+      ''awake'': ''Uyanık'', ''refreshing'': ''Güncelleniyor'', ''polling'': ''Veri sorgulanıyor'', ''error'': ''Hata'', ''failed'':
+      ''Başarısız'', ''success'': ''Başarılı'', ''ok'': ''Normal'', ''ready'': ''Hazır'', ''immediate'': ''Hemen'', ''immediate
+      charging'': ''Hemen şarj'', ''scheduled charging'': ''Planlı şarj'', ''no schedule'': ''Plan yok'', ''no_schedule'':
+      ''Plan yok'', ''open'': ''Açık'', ''closed'': ''Kapalı'', ''defrosting'': ''Buğu çözülüyor'', ''defrost'': ''Buğu çözme''}
+      %}{% set s = states(''sensor.YOUR_VIN_last_car_activity'') %}{% set t = s | lower | trim %}{{ sozluk.get(t,
+      s) }}'
+    icon: mdi:car-clock
+  - name: MG4 TR Last Poll Error
+    unique_id: mg4_tr_last_poll_error
+    default_entity_id: sensor.mg4_tr_last_poll_error
+    state: '{% set sozluk = {''unknown'': ''Durum bilinmiyor'', ''unavailable'': ''Veri alınamıyor'', ''none'': ''Yok'', ''null'':
+      ''Yok'', ''idle'': ''Beklemede'', ''inactive'': ''Pasif'', ''active'': ''Aktif'', ''on'': ''Açık'', ''off'': ''Kapalı'',
+      ''true'': ''Evet'', ''false'': ''Hayır'', ''locked'': ''Kilitli'', ''unlocked'': ''Kilit açık'', ''locking'': ''Kilitleniyor'',
+      ''unlocking'': ''Kilit açılıyor'', ''plugged in'': ''Kablo takılı'', ''plugged_in'': ''Kablo takılı'', ''plugged'':
+      ''Kablo takılı'', ''connected'': ''Bağlı'', ''disconnected'': ''Bağlı değil'', ''unplugged'': ''Kablo çıkarılmış'',
+      ''not plugged in'': ''Kablo takılı değil'', ''not_plugged_in'': ''Kablo takılı değil'', ''charging'': ''Şarj oluyor'',
+      ''not charging'': ''Şarj olmuyor'', ''not_charging'': ''Şarj olmuyor'', ''charge complete'': ''Şarj tamamlandı'', ''charge_complete'':
+      ''Şarj tamamlandı'', ''completed'': ''Tamamlandı'', ''complete'': ''Tamamlandı'', ''finished'': ''Tamamlandı'', ''stopped'':
+      ''Durduruldu'', ''stopping'': ''Durduruluyor'', ''starting'': ''Başlatılıyor'', ''paused'': ''Duraklatıldı'', ''scheduled'':
+      ''Planlandı'', ''waiting'': ''Bekliyor'', ''waiting for charge'': ''Şarj bekleniyor'', ''heating'': ''Isıtıyor'', ''cooling'':
+      ''Soğutuyor'', ''auto'': ''Otomatik'', ''automatic'': ''Otomatik'', ''manual'': ''Manuel'', ''disabled'': ''Devre dışı'',
+      ''enabled'': ''Etkin'', ''normal'': ''Normal'', ''eco'': ''Ekonomik'', ''fast'': ''Hızlı'', ''running'': ''Çalışıyor'',
+      ''parked'': ''Park halinde'', ''driving'': ''Sürüşte'', ''sleeping'': ''Uyku modunda'', ''asleep'': ''Uyku modunda'',
+      ''awake'': ''Uyanık'', ''refreshing'': ''Güncelleniyor'', ''polling'': ''Veri sorgulanıyor'', ''error'': ''Hata'', ''failed'':
+      ''Başarısız'', ''success'': ''Başarılı'', ''ok'': ''Normal'', ''ready'': ''Hazır'', ''immediate'': ''Hemen'', ''immediate
+      charging'': ''Hemen şarj'', ''scheduled charging'': ''Planlı şarj'', ''no schedule'': ''Plan yok'', ''no_schedule'':
+      ''Plan yok'', ''open'': ''Açık'', ''closed'': ''Kapalı'', ''defrosting'': ''Buğu çözülüyor'', ''defrost'': ''Buğu çözme''}
+      %}{% set s = states(''sensor.YOUR_VIN_last_poll_error'') %}{% set t = s | lower | trim %}{{ sozluk.get(t, s)
+      }}'
+    icon: mdi:alert-circle-outline
+  - name: MG4 TR Charger Connected
+    unique_id: mg4_tr_charger_connected
+    default_entity_id: sensor.mg4_tr_charger_connected
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_charger_connected'') %}{{ ''Kablo takılı'' if s == ''on''
+      else ''Kablo takılı değil'' if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor''
+      }}'
+    icon: mdi:ev-plug-type2
+  - name: MG4 TR Battery Charging
+    unique_id: mg4_tr_battery_charging
+    default_entity_id: sensor.mg4_tr_battery_charging
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_battery_charging'') %}{{ ''Şarj oluyor'' if s == ''on'' else
+      ''Şarj olmuyor'' if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:battery-charging
+  - name: MG4 TR Battery Heating
+    unique_id: mg4_tr_battery_heating
+    default_entity_id: sensor.mg4_tr_battery_heating
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_battery_heating'') %}{{ ''Isıtma aktif'' if s == ''on'' else
+      ''Isıtma kapalı'' if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:battery-thermometer
+  - name: MG4 TR Scheduled Battery Heating
+    unique_id: mg4_tr_scheduled_battery_heating
+    default_entity_id: sensor.mg4_tr_scheduled_battery_heating
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_scheduled_battery_heating'') %}{{ ''Isıtma aktif'' if s ==
+      ''on'' else ''Isıtma kapalı'' if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor''
+      }}'
+    icon: mdi:battery-clock
+  - name: MG4 TR Door Driver
+    unique_id: mg4_tr_door_driver
+    default_entity_id: sensor.mg4_tr_door_driver
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_door_driver'') %}{{ ''Açık'' if s == ''on'' else ''Kapalı''
+      if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:car-door
+  - name: MG4 TR Door Passenger
+    unique_id: mg4_tr_door_passenger
+    default_entity_id: sensor.mg4_tr_door_passenger
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_door_passenger'') %}{{ ''Açık'' if s == ''on'' else ''Kapalı''
+      if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:car-door
+  - name: MG4 TR Door Rear Left
+    unique_id: mg4_tr_door_rear_left
+    default_entity_id: sensor.mg4_tr_door_rear_left
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_door_rear_left'') %}{{ ''Açık'' if s == ''on'' else ''Kapalı''
+      if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:car-door
+  - name: MG4 TR Door Rear Right
+    unique_id: mg4_tr_door_rear_right
+    default_entity_id: sensor.mg4_tr_door_rear_right
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_door_rear_right'') %}{{ ''Açık'' if s == ''on'' else ''Kapalı''
+      if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:car-door
+  - name: MG4 TR Boot
+    unique_id: mg4_tr_boot
+    default_entity_id: sensor.mg4_tr_boot
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_boot'') %}{{ ''Açık'' if s == ''on'' else ''Kapalı'' if s
+      == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:car-back
+  - name: MG4 TR Bonnet
+    unique_id: mg4_tr_bonnet
+    default_entity_id: sensor.mg4_tr_bonnet
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_bonnet'') %}{{ ''Açık'' if s == ''on'' else ''Kapalı'' if
+      s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:car
+  - name: MG4 TR Window Driver
+    unique_id: mg4_tr_window_driver
+    default_entity_id: sensor.mg4_tr_window_driver
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_window_driver'') %}{{ ''Açık'' if s == ''on'' else ''Kapalı''
+      if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:car-door
+  - name: MG4 TR Window Passenger
+    unique_id: mg4_tr_window_passenger
+    default_entity_id: sensor.mg4_tr_window_passenger
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_window_passenger'') %}{{ ''Açık'' if s == ''on'' else ''Kapalı''
+      if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:car-door
+  - name: MG4 TR Window Rear Left
+    unique_id: mg4_tr_window_rear_left
+    default_entity_id: sensor.mg4_tr_window_rear_left
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_window_rear_left'') %}{{ ''Açık'' if s == ''on'' else ''Kapalı''
+      if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:car-door
+  - name: MG4 TR Window Rear Right
+    unique_id: mg4_tr_window_rear_right
+    default_entity_id: sensor.mg4_tr_window_rear_right
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_window_rear_right'') %}{{ ''Açık'' if s == ''on'' else ''Kapalı''
+      if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:car-door
+  - name: MG4 TR Lights Side
+    unique_id: mg4_tr_lights_side
+    default_entity_id: sensor.mg4_tr_lights_side
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_lights_side'') %}{{ ''Yanıyor'' if s == ''on'' else ''Kapalı''
+      if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:car-parking-lights
+  - name: MG4 TR Lights Dipped Beam
+    unique_id: mg4_tr_lights_dipped_beam
+    default_entity_id: sensor.mg4_tr_lights_dipped_beam
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_lights_dipped_beam'') %}{{ ''Yanıyor'' if s == ''on'' else
+      ''Kapalı'' if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:car-light-dimmed
+  - name: MG4 TR Lights Main Beam
+    unique_id: mg4_tr_lights_main_beam
+    default_entity_id: sensor.mg4_tr_lights_main_beam
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_lights_main_beam'') %}{{ ''Yanıyor'' if s == ''on'' else ''Kapalı''
+      if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:car-light-high
+  - name: MG4 TR Vehicle Running
+    unique_id: mg4_tr_vehicle_running
+    default_entity_id: sensor.mg4_tr_vehicle_running
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_vehicle_running'') %}{{ ''Çalışıyor'' if s == ''on'' else
+      ''Park halinde'' if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:car-electric
+  - name: MG4 TR Hv Battery Active
+    unique_id: mg4_tr_hv_battery_active
+    default_entity_id: sensor.mg4_tr_hv_battery_active
+    state: '{% set s = states(''binary_sensor.YOUR_VIN_hv_battery_active'') %}{{ ''Aktif'' if s == ''on'' else ''Pasif''
+      if s == ''off'' else ''Veri alınamıyor'' if s == ''unavailable'' else ''Durum bilinmiyor'' }}'
+    icon: mdi:car-battery

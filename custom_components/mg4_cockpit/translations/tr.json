@@ -1,0 +1,28 @@
+{
+  "config": {
+    "step": {
+      "vehicle": {
+        "title": "MG4 aracınızı seçin",
+        "description": "SAIC MQTT Gateway tarafından oluşturulmuş araç sensörleri algılandı. Araç seçimi sonrasında 5 package ve 1 dashboard YAML dosyası hazırlanır. Mevcut dosyaların üzerine yazılmaz. Dashboardu etkinleştirme ve package yapılandırması henüz manuel.",
+        "data": {
+          "vehicle": "Araç VIN"
+        }
+      },
+      "manual": {
+        "title": "MG4 aracını elle tanımla",
+        "description": "SAIC MQTT Gateway sensörlerinden araç otomatik bulunamadı. Önce gateway ve MQTT Discovery'yi kontrol edin. İsterseniz VIN'i elle girin; varlık kimliklerinin eşleşmesi garanti değildir.",
+        "data": {
+          "vin": "Araç VIN (17 karakter)"
+        }
+      }
+    },
+    "error": {
+      "invalid_vin": "Geçersiz VIN",
+      "file_exists": "Kurulum dosyaları zaten mevcut; üzerine yazılmadı",
+      "write_failed": "Dosyalar hazırlanamadı; günlükleri kontrol edin"
+    },
+    "abort": {
+      "already_configured": "MG4 Cockpit zaten yapılandırılmış"
+    }
+  }
+}

@@ -1,0 +1,169 @@
+input_number:
+  mg4_surus_baslangic_km:
+    name: Sürüş başlangıç km
+    min: 0
+    max: 999999
+    step: 0.1
+    mode: box
+  mg4_surus_baslangic_soc:
+    name: Sürüş başlangıç SoC
+    min: 0
+    max: 100
+    step: 0.1
+    mode: box
+  mg4_son_surus_km:
+    name: Son sürüş mesafesi
+    min: 0
+    max: 500
+    step: 0.1
+    mode: box
+  mg4_son_surus_soc_kaybi:
+    name: Son sürüş SoC kaybı
+    min: 0
+    max: 100
+    step: 0.1
+    mode: box
+input_datetime:
+  mg4_son_surus_olcum_zamani:
+    name: Son sürüş ölçüm zamanı
+    has_date: true
+    has_time: true
+sensor:
+- platform: history_stats
+  name: MG4 Sürüş Süresi 0g
+  unique_id: mg4_surus_suresi_0g
+  entity_id: binary_sensor.YOUR_VIN_vehicle_running
+  state: 'on'
+  type: time
+  start: '{{ today_at(''00:00'') }}'
+  end: '{{ now() }}'
+- platform: history_stats
+  name: MG4 Sürüş Süresi 1g
+  unique_id: mg4_surus_suresi_1g
+  entity_id: binary_sensor.YOUR_VIN_vehicle_running
+  state: 'on'
+  type: time
+  start: '{{ today_at(''00:00'') - timedelta(days=1) }}'
+  end: '{{ today_at(''00:00'') }}'
+- platform: history_stats
+  name: MG4 Sürüş Süresi 2g
+  unique_id: mg4_surus_suresi_2g
+  entity_id: binary_sensor.YOUR_VIN_vehicle_running
+  state: 'on'
+  type: time
+  start: '{{ today_at(''00:00'') - timedelta(days=2) }}'
+  end: '{{ today_at(''00:00'') - timedelta(days=1) }}'
+- platform: history_stats
+  name: MG4 Sürüş Süresi 3g
+  unique_id: mg4_surus_suresi_3g
+  entity_id: binary_sensor.YOUR_VIN_vehicle_running
+  state: 'on'
+  type: time
+  start: '{{ today_at(''00:00'') - timedelta(days=3) }}'
+  end: '{{ today_at(''00:00'') - timedelta(days=2) }}'
+- platform: history_stats
+  name: MG4 Sürüş Süresi 4g
+  unique_id: mg4_surus_suresi_4g
+  entity_id: binary_sensor.YOUR_VIN_vehicle_running
+  state: 'on'
+  type: time
+  start: '{{ today_at(''00:00'') - timedelta(days=4) }}'
+  end: '{{ today_at(''00:00'') - timedelta(days=3) }}'
+- platform: history_stats
+  name: MG4 Sürüş Süresi 5g
+  unique_id: mg4_surus_suresi_5g
+  entity_id: binary_sensor.YOUR_VIN_vehicle_running
+  state: 'on'
+  type: time
+  start: '{{ today_at(''00:00'') - timedelta(days=5) }}'
+  end: '{{ today_at(''00:00'') - timedelta(days=4) }}'
+- platform: history_stats
+  name: MG4 Sürüş Süresi 6g
+  unique_id: mg4_surus_suresi_6g
+  entity_id: binary_sensor.YOUR_VIN_vehicle_running
+  state: 'on'
+  type: time
+  start: '{{ today_at(''00:00'') - timedelta(days=6) }}'
+  end: '{{ today_at(''00:00'') - timedelta(days=5) }}'
+template:
+- sensor:
+  - name: MG4 Veri Yaşı Dakika
+    unique_id: mg4_veri_yasi_dakika
+    unit_of_measurement: min
+    state_class: measurement
+    icon: mdi:clock-outline
+    availability: '{{ as_timestamp(states(''sensor.YOUR_VIN_last_vehicle_state''), none) is not none }}'
+    state: '{% set t = as_timestamp(states(''sensor.YOUR_VIN_last_vehicle_state''), none) %}{{ [0, ((as_timestamp(now()) -
+      t) / 60)] | max | round(1) if t is not none else none }}'
+  - name: MG4 Son Sürüş 100 Menzil
+    unique_id: mg4_son_surus_100_menzil
+    unit_of_measurement: km
+    state_class: measurement
+    icon: mdi:road-variant
+    availability: '{{ states(''input_datetime.mg4_son_surus_olcum_zamani'') not in [''unknown'',''unavailable'',''''] and states(''input_number.mg4_son_surus_soc_kaybi'')|float(0)
+      >= 2 and states(''input_number.mg4_son_surus_km'')|float(0) >= 3 }}'
+    state: '{% set km=states(''input_number.mg4_son_surus_km'')|float(0) %}{% set drop=states(''input_number.mg4_son_surus_soc_kaybi'')|float(0)
+      %}{{ (100*km/drop)|round(0) if drop>=2 and km>=3 else none }}'
+  - name: MG4 Son Sürüş Tahmini Menzil
+    unique_id: mg4_son_surus_tahmini_menzil
+    unit_of_measurement: km
+    state_class: measurement
+    icon: mdi:map-marker-distance
+    availability: '{{ is_number(states(''sensor.mg4_son_surus_100_menzil'')) and is_number(states(''sensor.YOUR_VIN_soc''))
+      }}'
+    state: '{{ (states(''sensor.mg4_son_surus_100_menzil'')|float(0) * states(''sensor.YOUR_VIN_soc'')|float(0) / 100)|round(0)
+      }}'
+automation:
+- id: mg4_analiz_surus_baslangici
+  alias: MG4 Analiz - Sürüş başlangıç ölçümü
+  mode: single
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.YOUR_VIN_vehicle_running
+    to: 'on'
+  actions:
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.mg4_surus_baslangic_km
+    data:
+      value: '{{ states(''sensor.YOUR_VIN_mileage'')|float(0) if is_number(states(''sensor.YOUR_VIN_mileage'')) and
+        is_number(states(''sensor.YOUR_VIN_soc'')) else 0 }}'
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.mg4_surus_baslangic_soc
+    data:
+      value: '{{ states(''sensor.YOUR_VIN_soc'')|float(0) if is_number(states(''sensor.YOUR_VIN_mileage'')) and is_number(states(''sensor.YOUR_VIN_soc''))
+        else 0 }}'
+- id: mg4_analiz_surus_bitis
+  alias: MG4 Analiz - Geçerli sürüş menzil hesabı
+  mode: single
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.YOUR_VIN_vehicle_running
+    from: 'on'
+    to: 'off'
+  variables:
+    km: '{{ states(''sensor.YOUR_VIN_mileage'')|float(0) - states(''input_number.mg4_surus_baslangic_km'')|float(0) }}'
+    drop: '{{ states(''input_number.mg4_surus_baslangic_soc'')|float(0) - states(''sensor.YOUR_VIN_soc'')|float(0) }}'
+  conditions:
+  - condition: template
+    value_template: '{{ is_number(states(''sensor.YOUR_VIN_mileage'')) and is_number(states(''sensor.YOUR_VIN_soc''))
+      and states(''input_number.mg4_surus_baslangic_km'')|float(0)>0 and km|float(0)>=3 and km|float(0)<=150 and drop|float(0)>=2 and
+      drop|float(0)<=40 and (km|float(0) / drop|float(0) * 100) >= 80 and (km|float(0) / drop|float(0) * 100) <= 800 and not is_state(''binary_sensor.YOUR_VIN_battery_charging'',''on'')
+      }}'
+  actions:
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.mg4_son_surus_km
+    data:
+      value: '{{ km|float|round(1) }}'
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.mg4_son_surus_soc_kaybi
+    data:
+      value: '{{ drop|float|round(1) }}'
+  - action: input_datetime.set_datetime
+    target:
+      entity_id: input_datetime.mg4_son_surus_olcum_zamani
+    data:
+      datetime: '{{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}'

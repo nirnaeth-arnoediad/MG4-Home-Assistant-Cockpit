@@ -1,0 +1,280 @@
+# MG4 ek analizler v3 — başlangıç ve bitiş sıcaklığının ortalaması
+input_number:
+  mg4_ek_baslangic_menzil:
+    name: MG4 Ek Başlangıç Menzil
+    min: 0
+    max: 1000
+    step: 0.1
+    mode: box
+  mg4_ek_baslangic_km:
+    name: MG4 Ek Başlangıç KM
+    min: 0
+    max: 999999
+    step: 0.1
+    mode: box
+  mg4_ek_baslangic_soc:
+    name: MG4 Ek Başlangıç SoC
+    min: 0
+    max: 100
+    step: 0.1
+    mode: box
+  mg4_ek_baslangic_sicaklik:
+    name: MG4 Ek Başlangıç Sıcaklık
+    min: -40
+    max: 65
+    step: 0.1
+    mode: box
+  mg4_ek_son_menzil_sapma:
+    name: MG4 Son Menzil Sapması
+    min: -500
+    max: 500
+    step: 0.1
+    mode: box
+  mg4_ek_son_dogruluk_puani:
+    name: MG4 Son Menzil Doğruluk Puanı
+    min: 0
+    max: 100
+    step: 0.1
+    mode: box
+  mg4_ek_son_sicaklik:
+    name: MG4 Son Sürüş Başlangıç Sıcaklığı
+    min: -40
+    max: 65
+    step: 0.1
+    mode: box
+  mg4_ek_son_soc_100km:
+    name: MG4 Son Sürüş SoC / 100 km
+    min: 0
+    max: 100
+    step: 0.01
+    mode: box
+  mg4_ek_soguk_soc_toplam:
+    name: MG4 Soğuk Sürüş SoC/100km Toplamı
+    min: 0
+    max: 100000
+    step: 0.01
+    mode: box
+  mg4_ek_soguk_sayisi:
+    name: MG4 Soğuk Sürüş Sayısı
+    min: 0
+    max: 100000
+    step: 1
+    mode: box
+  mg4_ek_ilik_soc_toplam:
+    name: MG4 Ilık Sürüş SoC/100km Toplamı
+    min: 0
+    max: 100000
+    step: 0.01
+    mode: box
+  mg4_ek_ilik_sayisi:
+    name: MG4 Ilık Sürüş Sayısı
+    min: 0
+    max: 100000
+    step: 1
+    mode: box
+  mg4_ek_ilik_referans_oran:
+    name: MG4 Ilık Referans SoC 100km
+    min: 0
+    max: 100
+    step: 0.001
+    mode: box
+  mg4_ek_son_bitis_sicaklik:
+    name: MG4 Son Sürüş Bitiş Sıcaklığı
+    min: -40
+    max: 65
+    step: 0.1
+    mode: box
+  mg4_ek_son_ortalama_sicaklik:
+    name: MG4 Son Sürüş Ortalama Sıcaklığı
+    min: -40
+    max: 65
+    step: 0.1
+    mode: box
+input_boolean:
+  mg4_ek_surus_izleniyor:
+    name: MG4 Ek Sürüş İzleniyor
+    icon: mdi:chart-line
+  mg4_ek_son_surus_gecerli:
+    name: MG4 Ek Son Sürüş Geçerli
+    icon: mdi:check-circle
+input_datetime:
+  mg4_ek_son_analiz_zamani:
+    name: MG4 Ek Son Analiz Zamanı
+    has_date: true
+    has_time: true
+template:
+- sensor:
+  - name: MG4 Menzil Doğruluk Puanı
+    unique_id: mg4_ek_menzil_dogruluk_puani
+    unit_of_measurement: '%'
+    availability: '{{ is_state(''input_boolean.mg4_ek_son_surus_gecerli'', ''on'') }}'
+    state: '{{ states(''input_number.mg4_ek_son_dogruluk_puani'') | float(0) | round(1) }}'
+  - name: MG4 Menzil Tahmin Sapması
+    unique_id: mg4_ek_menzil_tahmin_sapmasi
+    unit_of_measurement: km
+    availability: '{{ is_state(''input_boolean.mg4_ek_son_surus_gecerli'', ''on'') }}'
+    state: '{{ states(''input_number.mg4_ek_son_menzil_sapma'') | float(0) | round(1) }}'
+  - name: MG4 Soğuk Hava Menzil Cezası
+    unique_id: mg4_ek_soguk_hava_menzil_cezasi
+    unit_of_measurement: '%'
+    availability: "{{ states('input_number.mg4_ek_soguk_sayisi') | float(0) >= 5\n   and states('input_number.mg4_ek_ilik_sayisi')\
+      \ | float(0) >= 5\n   and states('input_number.mg4_ek_ilik_soc_toplam') | float(0) > 0 }}"
+    state: '{% set cold = states(''input_number.mg4_ek_soguk_soc_toplam'') | float(0) / (states(''input_number.mg4_ek_soguk_sayisi'')
+      | float(1)) %} {% set mild = states(''input_number.mg4_ek_ilik_soc_toplam'') | float(0) / (states(''input_number.mg4_ek_ilik_sayisi'')
+      | float(1)) %} {{ ((cold / mild - 1) * 100) | round(1) if mild > 0 else 0 }}'
+  - name: MG4 Batarya Performans Eğilimi
+    unique_id: mg4_ek_batarya_performans_egilimi
+    unit_of_measurement: '%'
+    availability: "{{ states('input_number.mg4_ek_ilik_sayisi') | int(0) >= 10\n   and states('input_number.mg4_ek_ilik_referans_oran')\
+      \ | float(0) > 0 }}"
+    state: '{% set reference = states(''input_number.mg4_ek_ilik_referans_oran'') | float(0) %} {% set count = states(''input_number.mg4_ek_ilik_sayisi'')
+      | int(0) %} {% set total = states(''input_number.mg4_ek_ilik_soc_toplam'') | float(0) %} {% set subsequent
+      = (total - reference * 5) / (count - 5) if count > 5 else 0 %} {{ ((reference / subsequent - 1) * 100) | round(1)
+      if subsequent > 0 else 0 }}'
+automation:
+- id: mg4_ek_analiz_baslangic
+  alias: MG4 Ek Analiz - Sürüş başlangıcı
+  mode: single
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.YOUR_VIN_vehicle_running
+    from: 'off'
+    to: 'on'
+  conditions:
+  - condition: template
+    value_template: "{{ is_number(states('sensor.YOUR_VIN_range'))\n   and is_number(states('sensor.YOUR_VIN_mileage'))\n\
+      \   and is_number(states('sensor.YOUR_VIN_soc'))\n   and is_number(states('sensor.YOUR_VIN_exterior_temperature'))\
+      \ }}"
+  actions:
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.mg4_ek_baslangic_menzil
+    data:
+      value: '{{ states(''sensor.YOUR_VIN_range'') | float }}'
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.mg4_ek_baslangic_km
+    data:
+      value: '{{ states(''sensor.YOUR_VIN_mileage'') | float }}'
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.mg4_ek_baslangic_soc
+    data:
+      value: '{{ states(''sensor.YOUR_VIN_soc'') | float }}'
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.mg4_ek_baslangic_sicaklik
+    data:
+      value: '{{ states(''sensor.YOUR_VIN_exterior_temperature'') | float }}'
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.mg4_ek_surus_izleniyor
+- id: mg4_ek_analiz_bitis
+  alias: MG4 Ek Analiz - Sürüş bitişi
+  mode: single
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.YOUR_VIN_vehicle_running
+    from: 'on'
+    to: 'off'
+  conditions:
+  - condition: state
+    entity_id: input_boolean.mg4_ek_surus_izleniyor
+    state: 'on'
+  actions:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.mg4_ek_surus_izleniyor
+  - variables:
+      km: '{{ states(''sensor.YOUR_VIN_mileage'') | float(0) - states(''input_number.mg4_ek_baslangic_km'')
+        | float(0) }}'
+      soc_drop: '{{ states(''input_number.mg4_ek_baslangic_soc'') | float(0) - states(''sensor.YOUR_VIN_soc'')
+        | float(0) }}'
+      range_drop: '{{ states(''input_number.mg4_ek_baslangic_menzil'') | float(0) - states(''sensor.YOUR_VIN_range'')
+        | float(0) }}'
+      temp: '{{ states(''input_number.mg4_ek_baslangic_sicaklik'') | float(0) }}'
+      end_temp: '{{ states(''sensor.YOUR_VIN_exterior_temperature'') | float(0) }}'
+  - condition: template
+    value_template: "{{ is_number(states('sensor.YOUR_VIN_mileage'))\n   and is_number(states('sensor.YOUR_VIN_soc'))\n\
+      \   and is_number(states('sensor.YOUR_VIN_range'))\n   and is_number(states('sensor.YOUR_VIN_exterior_temperature'))\n\
+      \             and km | float >= 5 and km | float <= 150\n   and soc_drop | float >= 2 and soc_drop | float\
+      \ <= 40\n   and range_drop | float >= -30 and range_drop | float <= 300 }}"
+  - variables:
+      deviation: '{{ (km | float - range_drop | float) | round(1) }}'
+      score: '{{ [0, 100 * (1 - ((km | float - range_drop | float) | abs / [km | float, 20] | max))] | max | round(1)
+        }}'
+      rate: '{{ (soc_drop | float / km | float * 100) | round(2) }}'
+      avg_temp: '{{ ((temp | float + end_temp | float) / 2) | round(1) }}'
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.mg4_ek_son_menzil_sapma
+    data:
+      value: '{{ [[deviation | float, -500] | max, 500] | min }}'
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.mg4_ek_son_dogruluk_puani
+    data:
+      value: '{{ score }}'
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.mg4_ek_son_sicaklik
+    data:
+      value: '{{ temp }}'
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.mg4_ek_son_bitis_sicaklik
+    data:
+      value: '{{ end_temp }}'
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.mg4_ek_son_ortalama_sicaklik
+    data:
+      value: '{{ avg_temp }}'
+  - action: input_number.set_value
+    target:
+      entity_id: input_number.mg4_ek_son_soc_100km
+    data:
+      value: '{{ rate }}'
+  - action: input_datetime.set_datetime
+    target:
+      entity_id: input_datetime.mg4_ek_son_analiz_zamani
+    data:
+      datetime: '{{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}'
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.mg4_ek_son_surus_gecerli
+  - choose:
+    - conditions: '{{ avg_temp | float < 10 }}'
+      sequence:
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.mg4_ek_soguk_soc_toplam
+        data:
+          value: '{{ states(''input_number.mg4_ek_soguk_soc_toplam'') | float(0) + rate | float }}'
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.mg4_ek_soguk_sayisi
+        data:
+          value: '{{ states(''input_number.mg4_ek_soguk_sayisi'') | int(0) + 1 }}'
+    - conditions: '{{ 15 <= avg_temp | float <= 25 }}'
+      sequence:
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.mg4_ek_ilik_soc_toplam
+        data:
+          value: '{{ states(''input_number.mg4_ek_ilik_soc_toplam'') | float(0) + rate | float }}'
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.mg4_ek_ilik_sayisi
+        data:
+          value: '{{ states(''input_number.mg4_ek_ilik_sayisi'') | int(0) + 1 }}'
+  - if:
+    - condition: template
+      value_template: "{{ states('input_number.mg4_ek_ilik_sayisi') | int(0) == 5\n   and states('input_number.mg4_ek_ilik_referans_oran')\
+        \ | float(0) == 0 }}"
+    then:
+    - action: input_number.set_value
+      target:
+        entity_id: input_number.mg4_ek_ilik_referans_oran
+      data:
+        value: '{{ (states(''input_number.mg4_ek_ilik_soc_toplam'') | float(0) / 5) | round(3) }}'
