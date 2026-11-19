@@ -1,6 +1,6 @@
-# Merge into your existing Home Assistant configuration; do not overwrite it.
+# Bu satırları mevcut Home Assistant yapılandırmasıyla birleştirin.
+# Mevcut configuration.yaml dosyanızın üzerine yazmayın.
 homeassistant:
   packages: !include_dir_named packages
 
-# Existing automation/script/scene includes are usually already configured.
-# EPİAŞ is optional; see epias/README.md.
+# EPİAŞ isteğe bağlıdır. Ayrıntılar: epias/README.md

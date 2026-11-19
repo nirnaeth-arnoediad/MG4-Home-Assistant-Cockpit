@@ -2,7 +2,7 @@
 
 MG4 elektrikli araç için Home Assistant üzerinde geliştirilmiş, Türkçe bir kontrol ve analiz panelidir. Batarya durumu, menzil, şarj yönetimi, konfor kontrolleri ve sürüş analizlerini tek arayüzde toplar.
 
-> **Durum:** Geliştirme sürümü. Mevcut sistemden uyarlanmıştır; farklı Home Assistant kurulumlarında sensör adları ve özel kart bağımlılıkları değişebilir. Önce Private repoda test edilmesi önerilir.
+> **Durum:** Deneysel YAML sürümü. Farklı Home Assistant kurulumlarında sensör adları ve özel kart bağımlılıkları değişebilir. HACS ile otomatik kurulum henüz yayımlanmamıştır. Kurulumdan önce yapılandırmanızı yedekleyin.
 
 ## Ekran görüntüleri ve proje tanıtımı
 
