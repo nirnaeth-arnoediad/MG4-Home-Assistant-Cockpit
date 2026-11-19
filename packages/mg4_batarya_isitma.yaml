@@ -1,0 +1,499 @@
+input_text:
+  mg4_batarya_isitma_sonuc:
+    name: MG4 batarya ısıtma son komut sonucu
+    max: 255
+    initial: ℹ️ Henüz bu panelden ısıtma komutu gönderilmedi.
+  mg4_sarj_sonuc:
+    name: MG4 Şarj son komut sonucu
+    max: 255
+    initial: 'ℹ️ Şarj: Henüz komut gönderilmedi.'
+  mg4_fan_sonuc:
+    name: MG4 Yalnızca fan son komut sonucu
+    max: 255
+    initial: 'ℹ️ Yalnızca fan: Henüz komut gönderilmedi.'
+  mg4_on_cam_sonuc:
+    name: MG4 Ön cam buğu çözme son komut sonucu
+    max: 255
+    initial: 'ℹ️ Ön cam buğu çözme: Henüz komut gönderilmedi.'
+  mg4_arka_cam_sonuc:
+    name: MG4 Arka cam rezistansı son komut sonucu
+    max: 255
+    initial: 'ℹ️ Arka cam rezistansı: Henüz komut gönderilmedi.'
+  mg4_klima_sonuc:
+    name: MG4 Klima durum bildirimi
+    max: 255
+    initial: 'ℹ️ Klima: Değişiklik bekleniyor.'
+  mg4_surucu_koltuk_sonuc:
+    name: MG4 Sürücü koltuk ısıtma durum bildirimi
+    max: 255
+    initial: 'ℹ️ Sürücü koltuk ısıtma: Değişiklik bekleniyor.'
+  mg4_yolcu_koltuk_sonuc:
+    name: MG4 Yolcu koltuk ısıtma durum bildirimi
+    max: 255
+    initial: 'ℹ️ Yolcu koltuk ısıtma: Değişiklik bekleniyor.'
+  mg4_sarj_siniri_sonuc:
+    name: MG4 Hedef şarj seviyesi durum bildirimi
+    max: 255
+    initial: 'ℹ️ Hedef şarj seviyesi: Değişiklik bekleniyor.'
+  mg4_akim_limiti_sonuc:
+    name: MG4 Şarj akım limiti durum bildirimi
+    max: 255
+    initial: 'ℹ️ Şarj akım limiti: Değişiklik bekleniyor.'
+  mg4_sarj_plan_sonuc:
+    name: MG4 Şarj planlama modu durum bildirimi
+    max: 255
+    initial: 'ℹ️ Şarj planlama modu: Değişiklik bekleniyor.'
+  mg4_isitma_plan_sonuc:
+    name: MG4 Batarya ısıtma planı durum bildirimi
+    max: 255
+    initial: 'ℹ️ Batarya ısıtma planı: Değişiklik bekleniyor.'
+  mg4_soket_kilidi_sonuc:
+    name: MG4 Şarj soketi kilidi durum bildirimi
+    max: 255
+    initial: 'ℹ️ Şarj soketi kilidi: Değişiklik bekleniyor.'
+  mg4_son_bildirim:
+    name: MG4 Son işlem bildirimi
+    max: 255
+script:
+  mg4_batarya_isitma_geri_bildirim:
+    alias: MG4 – Batarya ısıtma komutu ve geri bildirim
+    mode: restart
+    sequence:
+    - choose:
+      - conditions:
+        - condition: state
+          entity_id: binary_sensor.YOUR_VIN_battery_heating
+          state: 'on'
+        sequence:
+        - action: input_text.set_value
+          target:
+            entity_id: input_text.mg4_batarya_isitma_sonuc
+          data:
+            value: ⏳ Kapatma komutu gönderiliyor…
+        - action: switch.turn_off
+          target:
+            entity_id: switch.YOUR_VIN_battery_heating
+        - delay: 00:00:20
+        - choose:
+          - conditions:
+            - condition: state
+              entity_id: binary_sensor.YOUR_VIN_battery_heating
+              state: 'off'
+            sequence:
+            - action: input_text.set_value
+              target:
+                entity_id: input_text.mg4_batarya_isitma_sonuc
+              data:
+                value: ✅ Isıtma kapatıldı; araç durumu doğrulandı.
+          default:
+          - action: input_text.set_value
+            target:
+              entity_id: input_text.mg4_batarya_isitma_sonuc
+            data:
+              value: ⚠️ Kapatma istendi; araçtan kapanma doğrulaması gelmedi.
+      default:
+      - action: input_text.set_value
+        target:
+          entity_id: input_text.mg4_batarya_isitma_sonuc
+        data:
+          value: ⏳ Isıtma komutu gönderildi; araç yanıtı bekleniyor…
+      - action: switch.turn_on
+        target:
+          entity_id: switch.YOUR_VIN_battery_heating
+      - delay: 00:00:30
+      - choose:
+        - conditions:
+          - condition: state
+            entity_id: binary_sensor.YOUR_VIN_battery_heating
+            state: 'on'
+          sequence:
+          - action: input_text.set_value
+            target:
+              entity_id: input_text.mg4_batarya_isitma_sonuc
+            data:
+              value: ✅ Isıtma başladı; araç durumu doğrulandı.
+        - conditions:
+          - condition: template
+            value_template: '{{ states(''binary_sensor.YOUR_VIN_battery_heating'') in [''unknown'', ''unavailable'']
+              }}'
+          sequence:
+          - action: input_text.set_value
+            target:
+              entity_id: input_text.mg4_batarya_isitma_sonuc
+            data:
+              value: ⚠️ Komut gönderildi ancak araç durumu okunamadı.
+        default:
+        - action: input_text.set_value
+          target:
+            entity_id: input_text.mg4_batarya_isitma_sonuc
+          data:
+            value: ℹ️ Isıtma devreye girmedi. Batarya yeterince sıcak olabilir; neden doğrulanamadı.
+  mg4_sarj_geri_bildirim:
+    alias: MG4 – Şarj komutu ve geri bildirim
+    mode: restart
+    sequence:
+    - variables:
+        hedef: '{{ ''off'' if is_state(''switch.YOUR_VIN_charging'', ''on'') else ''on'' }}'
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.mg4_sarj_sonuc
+      data:
+        value: '⏳ Şarj: Komut gönderiliyor, araç yanıtı bekleniyor…'
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ hedef == ''on'' }}'
+        sequence:
+        - action: switch.turn_on
+          target:
+            entity_id: switch.YOUR_VIN_charging
+      default:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.YOUR_VIN_charging
+    - delay: 00:00:30
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ states(''binary_sensor.YOUR_VIN_battery_charging'') in [''unknown'',''unavailable'']
+            }}'
+        sequence:
+        - action: input_text.set_value
+          target:
+            entity_id: input_text.mg4_sarj_sonuc
+          data:
+            value: '⚠️ Şarj: Araç durumu okunamadı; komut doğrulanamadı.'
+      - conditions:
+        - condition: template
+          value_template: '{{ is_state(''binary_sensor.YOUR_VIN_battery_charging'', hedef) }}'
+        sequence:
+        - action: input_text.set_value
+          target:
+            entity_id: input_text.mg4_sarj_sonuc
+          data:
+            value: '✅ Şarj: İstenen durum araç verisinde görüldü.'
+      default:
+      - action: input_text.set_value
+        target:
+          entity_id: input_text.mg4_sarj_sonuc
+        data:
+          value: 'ℹ️ Şarj: İstenen durum henüz doğrulanmadı. Araç koşullarını ve bağlantıyı kontrol edin.'
+  mg4_fan_geri_bildirim:
+    alias: MG4 – Yalnızca fan komutu ve geri bildirim
+    mode: restart
+    sequence:
+    - variables:
+        hedef: '{{ ''off'' if is_state(''switch.YOUR_VIN_vehicle_climate_fan_only'', ''on'') else ''on'' }}'
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.mg4_fan_sonuc
+      data:
+        value: '⏳ Yalnızca fan: Komut gönderiliyor, araç yanıtı bekleniyor…'
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ hedef == ''on'' }}'
+        sequence:
+        - action: switch.turn_on
+          target:
+            entity_id: switch.YOUR_VIN_vehicle_climate_fan_only
+      default:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.YOUR_VIN_vehicle_climate_fan_only
+    - delay: 00:00:30
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ states(''switch.YOUR_VIN_vehicle_climate_fan_only'') in [''unknown'',''unavailable'']
+            }}'
+        sequence:
+        - action: input_text.set_value
+          target:
+            entity_id: input_text.mg4_fan_sonuc
+          data:
+            value: '⚠️ Yalnızca fan: Araç durumu okunamadı; komut doğrulanamadı.'
+      - conditions:
+        - condition: template
+          value_template: '{{ is_state(''switch.YOUR_VIN_vehicle_climate_fan_only'', hedef) }}'
+        sequence:
+        - action: input_text.set_value
+          target:
+            entity_id: input_text.mg4_fan_sonuc
+          data:
+            value: '✅ Yalnızca fan: İstenen durum araç verisinde görüldü.'
+      default:
+      - action: input_text.set_value
+        target:
+          entity_id: input_text.mg4_fan_sonuc
+        data:
+          value: 'ℹ️ Yalnızca fan: İstenen durum henüz doğrulanmadı. Araç koşullarını ve bağlantıyı kontrol edin.'
+  mg4_on_cam_geri_bildirim:
+    alias: MG4 – Ön cam buğu çözme komutu ve geri bildirim
+    mode: restart
+    sequence:
+    - variables:
+        hedef: '{{ ''off'' if is_state(''switch.YOUR_VIN_front_window_defroster_heating'', ''on'') else ''on''
+          }}'
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.mg4_on_cam_sonuc
+      data:
+        value: '⏳ Ön cam buğu çözme: Komut gönderiliyor, araç yanıtı bekleniyor…'
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ hedef == ''on'' }}'
+        sequence:
+        - action: switch.turn_on
+          target:
+            entity_id: switch.YOUR_VIN_front_window_defroster_heating
+      default:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.YOUR_VIN_front_window_defroster_heating
+    - delay: 00:00:30
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ states(''switch.YOUR_VIN_front_window_defroster_heating'') in [''unknown'',''unavailable'']
+            }}'
+        sequence:
+        - action: input_text.set_value
+          target:
+            entity_id: input_text.mg4_on_cam_sonuc
+          data:
+            value: '⚠️ Ön cam buğu çözme: Araç durumu okunamadı; komut doğrulanamadı.'
+      - conditions:
+        - condition: template
+          value_template: '{{ is_state(''switch.YOUR_VIN_front_window_defroster_heating'', hedef) }}'
+        sequence:
+        - action: input_text.set_value
+          target:
+            entity_id: input_text.mg4_on_cam_sonuc
+          data:
+            value: '✅ Ön cam buğu çözme: İstenen durum araç verisinde görüldü.'
+      default:
+      - action: input_text.set_value
+        target:
+          entity_id: input_text.mg4_on_cam_sonuc
+        data:
+          value: 'ℹ️ Ön cam buğu çözme: İstenen durum henüz doğrulanmadı. Araç koşullarını ve bağlantıyı kontrol edin.'
+  mg4_arka_cam_geri_bildirim:
+    alias: MG4 – Arka cam rezistansı komutu ve geri bildirim
+    mode: restart
+    sequence:
+    - variables:
+        hedef: '{{ ''off'' if is_state(''switch.YOUR_VIN_rear_window_defroster_heating'', ''on'') else ''on''
+          }}'
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.mg4_arka_cam_sonuc
+      data:
+        value: '⏳ Arka cam rezistansı: Komut gönderiliyor, araç yanıtı bekleniyor…'
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ hedef == ''on'' }}'
+        sequence:
+        - action: switch.turn_on
+          target:
+            entity_id: switch.YOUR_VIN_rear_window_defroster_heating
+      default:
+      - action: switch.turn_off
+        target:
+          entity_id: switch.YOUR_VIN_rear_window_defroster_heating
+    - delay: 00:00:30
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ states(''switch.YOUR_VIN_rear_window_defroster_heating'') in [''unknown'',''unavailable'']
+            }}'
+        sequence:
+        - action: input_text.set_value
+          target:
+            entity_id: input_text.mg4_arka_cam_sonuc
+          data:
+            value: '⚠️ Arka cam rezistansı: Araç durumu okunamadı; komut doğrulanamadı.'
+      - conditions:
+        - condition: template
+          value_template: '{{ is_state(''switch.YOUR_VIN_rear_window_defroster_heating'', hedef) }}'
+        sequence:
+        - action: input_text.set_value
+          target:
+            entity_id: input_text.mg4_arka_cam_sonuc
+          data:
+            value: '✅ Arka cam rezistansı: İstenen durum araç verisinde görüldü.'
+      default:
+      - action: input_text.set_value
+        target:
+          entity_id: input_text.mg4_arka_cam_sonuc
+        data:
+          value: 'ℹ️ Arka cam rezistansı: İstenen durum henüz doğrulanmadı. Araç koşullarını ve bağlantıyı kontrol edin.'
+automation:
+- id: mg4_klima_durum_bildirimi
+  alias: MG4 – Klima durum güncellemesi
+  mode: queued
+  trigger:
+  - platform: state
+    entity_id: climate.YOUR_VIN_vehicle_climate
+  condition:
+  - condition: template
+    value_template: '{{ trigger.to_state is not none and trigger.to_state.state not in [''unknown'',''unavailable'']
+      and trigger.from_state is not none and (trigger.from_state.state != trigger.to_state.state or trigger.from_state.attributes.get(''temperature'')
+      != trigger.to_state.attributes.get(''temperature'')) }}'
+  action:
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.mg4_klima_sonuc
+    data:
+      value: 'ℹ️ Klima: {{ trigger.to_state.state }} · Hedef: {{ state_attr(''climate.YOUR_VIN_vehicle_climate'',
+        ''temperature'') | default(''—'', true) }} °C (Bildirilen değer)'
+- id: mg4_surucu_koltuk_durum_bildirimi
+  alias: MG4 – Sürücü koltuk ısıtma durum güncellemesi
+  mode: queued
+  trigger:
+  - platform: state
+    entity_id: select.YOUR_VIN_heated_seat_front_left_level
+  condition:
+  - condition: template
+    value_template: '{{ trigger.to_state is not none and trigger.to_state.state not in [''unknown'',''unavailable'']
+      and trigger.from_state is not none and trigger.from_state.state != trigger.to_state.state }}'
+  action:
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.mg4_surucu_koltuk_sonuc
+    data:
+      value: 'ℹ️ Sürücü koltuk ısıtma: Yeni bildirilen durum: {{ trigger.to_state.state }}. (Araç verisi)'
+- id: mg4_yolcu_koltuk_durum_bildirimi
+  alias: MG4 – Yolcu koltuk ısıtma durum güncellemesi
+  mode: queued
+  trigger:
+  - platform: state
+    entity_id: select.YOUR_VIN_heated_seat_front_right_level
+  condition:
+  - condition: template
+    value_template: '{{ trigger.to_state is not none and trigger.to_state.state not in [''unknown'',''unavailable'']
+      and trigger.from_state is not none and trigger.from_state.state != trigger.to_state.state }}'
+  action:
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.mg4_yolcu_koltuk_sonuc
+    data:
+      value: 'ℹ️ Yolcu koltuk ısıtma: Yeni bildirilen durum: {{ trigger.to_state.state }}. (Araç verisi)'
+- id: mg4_sarj_siniri_durum_bildirimi
+  alias: MG4 – Hedef şarj seviyesi durum güncellemesi
+  mode: queued
+  trigger:
+  - platform: state
+    entity_id: number.YOUR_VIN_target_soc
+  condition:
+  - condition: template
+    value_template: '{{ trigger.to_state is not none and trigger.to_state.state not in [''unknown'',''unavailable'']
+      and trigger.from_state is not none and trigger.from_state.state != trigger.to_state.state }}'
+  action:
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.mg4_sarj_siniri_sonuc
+    data:
+      value: 'ℹ️ Hedef şarj seviyesi: Yeni bildirilen durum: {{ trigger.to_state.state }}. (Araç verisi)'
+- id: mg4_akim_limiti_durum_bildirimi
+  alias: MG4 – Şarj akım limiti durum güncellemesi
+  mode: queued
+  trigger:
+  - platform: state
+    entity_id: select.YOUR_VIN_charge_current_limit
+  condition:
+  - condition: template
+    value_template: '{{ trigger.to_state is not none and trigger.to_state.state not in [''unknown'',''unavailable'']
+      and trigger.from_state is not none and trigger.from_state.state != trigger.to_state.state }}'
+  action:
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.mg4_akim_limiti_sonuc
+    data:
+      value: 'ℹ️ Şarj akım limiti: Yeni bildirilen durum: {{ trigger.to_state.state }}. (Araç verisi)'
+- id: mg4_sarj_plan_durum_bildirimi
+  alias: MG4 – Şarj planlama modu durum güncellemesi
+  mode: queued
+  trigger:
+  - platform: state
+    entity_id: select.YOUR_VIN_scheduled_charging_mode
+  condition:
+  - condition: template
+    value_template: '{{ trigger.to_state is not none and trigger.to_state.state not in [''unknown'',''unavailable'']
+      and trigger.from_state is not none and trigger.from_state.state != trigger.to_state.state }}'
+  action:
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.mg4_sarj_plan_sonuc
+    data:
+      value: 'ℹ️ Şarj planlama modu: Yeni bildirilen durum: {{ trigger.to_state.state }}. (Araç verisi)'
+- id: mg4_isitma_plan_durum_bildirimi
+  alias: MG4 – Batarya ısıtma planı durum güncellemesi
+  mode: queued
+  trigger:
+  - platform: state
+    entity_id: select.YOUR_VIN_scheduled_battery_heating
+  condition:
+  - condition: template
+    value_template: '{{ trigger.to_state is not none and trigger.to_state.state not in [''unknown'',''unavailable'']
+      and trigger.from_state is not none and trigger.from_state.state != trigger.to_state.state }}'
+  action:
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.mg4_isitma_plan_sonuc
+    data:
+      value: 'ℹ️ Batarya ısıtma planı: Yeni bildirilen durum: {{ trigger.to_state.state }}. (Araç verisi)'
+- id: mg4_soket_kilidi_durum_bildirimi
+  alias: MG4 – Şarj soketi kilidi durum güncellemesi
+  mode: queued
+  trigger:
+  - platform: state
+    entity_id: lock.YOUR_VIN_charging_cable_lock
+  condition:
+  - condition: template
+    value_template: '{{ trigger.to_state is not none and trigger.to_state.state not in [''unknown'',''unavailable'']
+      and trigger.from_state is not none and trigger.from_state.state != trigger.to_state.state }}'
+  action:
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.mg4_soket_kilidi_sonuc
+    data:
+      value: 'ℹ️ Şarj soketi kilidi: Yeni bildirilen durum: {{ trigger.to_state.state }}. (Araç verisi)'
+- id: mg4_tek_bildirim_goster
+  alias: MG4 – İşlem sonucunu tek bildirimde göster
+  mode: queued
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_text.mg4_batarya_isitma_sonuc
+    - input_text.mg4_sarj_sonuc
+    - input_text.mg4_fan_sonuc
+    - input_text.mg4_on_cam_sonuc
+    - input_text.mg4_arka_cam_sonuc
+    - input_text.mg4_klima_sonuc
+    - input_text.mg4_surucu_koltuk_sonuc
+    - input_text.mg4_yolcu_koltuk_sonuc
+    - input_text.mg4_sarj_siniri_sonuc
+    - input_text.mg4_akim_limiti_sonuc
+    - input_text.mg4_sarj_plan_sonuc
+    - input_text.mg4_isitma_plan_sonuc
+    - input_text.mg4_soket_kilidi_sonuc
+  conditions:
+  - condition: template
+    value_template: '{{ trigger.to_state is not none and trigger.to_state.state not in [''unknown'',''unavailable'','''']
+      and trigger.from_state is not none and trigger.from_state.state != trigger.to_state.state }}'
+  actions:
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.mg4_son_bildirim
+    data:
+      value: '{{ trigger.to_state.state[:255] }}'
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.mg4_bildirim_goster
+input_boolean:
+  mg4_bildirim_goster:
+    name: MG4 işlem bildirimi görünür
+    icon: mdi:message-alert

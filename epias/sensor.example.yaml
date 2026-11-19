@@ -1,0 +1,10 @@
+# OPTIONAL: add this block to configuration.yaml if you want EPİAŞ PTF.
+command_line:
+  - sensor:
+      name: "EPIAS Guncel PTF kWh"
+      unique_id: epias_guncel_ptf_kwh
+      command: "bash /config/epias_ptf.sh"
+      command_timeout: 60
+      scan_interval: 31536000
+      unit_of_measurement: "TL/kWh"
+      state_class: measurement

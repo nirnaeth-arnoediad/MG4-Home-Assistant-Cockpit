@@ -1,0 +1,6 @@
+# Merge into your existing Home Assistant configuration; do not overwrite it.
+homeassistant:
+  packages: !include_dir_named packages
+
+# Existing automation/script/scene includes are usually already configured.
+# EPİAŞ is optional; see epias/README.md.

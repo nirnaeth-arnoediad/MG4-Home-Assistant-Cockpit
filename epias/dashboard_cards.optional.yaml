@@ -1,0 +1,44 @@
+- type: grid
+  columns: 2
+  square: false
+  grid_options:
+    columns: full
+  cards:
+  - type: custom:mushroom-template-card
+    entity: sensor.epias_guncel_ptf_kwh_2
+    primary: Güncel PTF
+    secondary: '{% set s = states(''sensor.epias_guncel_ptf_kwh_2'') %}
+
+      {% if is_number(s) %}
+
+      {{ ''%.3f TL/kWh'' | format(s | float) }}
+
+      {% set t = as_local(states.sensor.epias_guncel_ptf_kwh_2.last_updated) %}
+
+      {{ t.strftime(''%d.%m.%Y'') }} · {{ t.strftime(''%H:00'') }}–{{ (t + timedelta(hours=1)).strftime(''%H:00'')
+      }}
+
+      {% else %}Veri bekleniyor{% endif %}'
+    icon: mdi:chart-line
+    icon_color: cyan
+    tap_action:
+      action: more-info
+    card_mod:
+      style: 'ha-card { border-radius: 16px; }'
+    multiline_secondary: true
+  - type: custom:mushroom-template-card
+    entity: sensor.epias_guncel_ptf_kwh_2
+    primary: Tahmini toplam fiyat
+    secondary: '{% set p = states(''sensor.epias_guncel_ptf_kwh_2'') %}{% if is_number(p) %}{{ ''%.2f TL/kWh'' |
+      format((((p | float + 0.48886) * 1.0495 * 1.05) + 2.4249) * 1.10) }}{% else %}Veri bekleniyor{% endif %}'
+    icon: mdi:cash-multiple
+    icon_color: green
+    tap_action:
+      action: more-info
+    card_mod:
+      style: 'ha-card { border-radius: 16px; }'
+- type: markdown
+  content: '<small>Tahmini toplam: YEKDEM 0,48886 + %4,95 tedarikçi payı + 2,4249 TL/kWh dağıtım + %5 BTV + %10
+    KDV. Bu değerler varsayımsaldır; sözleşme ve güncel tarifeyle doğrulanmalıdır.</small>'
+  grid_options:
+    columns: full

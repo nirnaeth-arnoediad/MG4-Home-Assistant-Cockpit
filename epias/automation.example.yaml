@@ -1,0 +1,15 @@
+- id: '1794935476299'
+  alias: EPIAS - Her Saat 02 PTF Güncelle
+  description: 'Her saat başından 2 dakika sonra mevcut saatin PTF fiyatını günceller.
+
+    '
+  triggers:
+  - trigger: time_pattern
+    minutes: '2'
+    seconds: '0'
+  conditions: []
+  actions:
+  - action: homeassistant.update_entity
+    target:
+      entity_id: sensor.epias_guncel_ptf_kwh
+  mode: single
