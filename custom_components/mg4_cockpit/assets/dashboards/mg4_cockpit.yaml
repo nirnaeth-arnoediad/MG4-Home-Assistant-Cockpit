@@ -1,4 +1,4 @@
-title: MG4 Cockpit V5.6 · Üç yeni analiz
+title: MG4 Cockpit v0.6.0-beta.3 (BETA)
 views:
 - title: Kokpit
   path: kokpit
@@ -8,16 +8,6 @@ views:
   sections:
   - type: grid
     cards:
-    - type: button
-      name: v0.6 Beta 2 – Test
-      icon: mdi:restore
-      show_state: false
-      tap_action:
-        action: none
-      hold_action:
-        action: none
-      grid_options:
-        columns: 6
     - type: heading
       heading: MG4 Luxury · 2023
       heading_style: title
@@ -1279,33 +1269,34 @@ views:
     - type: markdown
       grid_options:
         columns: full
-      content: '{% set soguk = states(''input_number.mg4_ek_soguk_sayisi'') | int(0) %}
-
-        {% set ilik = states(''input_number.mg4_ek_ilik_sayisi'') | int(0) %}
-
-        **Soğuk hava tüketim farkı:** 10°C altındaki sürüşlerle 15–25°C arasındaki sürüşlerin ortalama tüketim farkını
-        yüzde olarak gösterir. En az **5 soğuk + 5 ılık sürüş** gerekir.
-
-
-        - Soğuk sürüş: **{{ soguk }}/5** — **{{ [5 - soguk, 0] | max }} sürüş kaldı**.
-
-        - Ilık sürüş: **{{ ilik }}/5** — **{{ [5 - ilik, 0] | max }} sürüş kaldı**.
-
-
-        **Batarya performans eğilimi:** Benzer sıcaklıklardaki sürüşlerde enerji verimliliğinin zamanla değişimini
-        izler. En az **10 ılık sürüş** ve geçerli referans verisi gerekir.
-
-
-        - Performans eğilimi: **{{ ilik }}/10 ılık sürüş** — **{{ [10 - ilik, 0] | max }} sürüş kaldı**.
-
-
-        {% if soguk < 5 or ilik < 5 %}*Soğuk hava karşılaştırması için veri birikiyor.*{% endif %}
-
-        {% if ilik < 10 %}*Performans eğilimi için veri birikiyor.*{% endif %}
-
-
-        **Not:** Performans eğilimi gerçek batarya sağlığı (SoH) ölçümü değildir. Yeterli sürüş sayısına ulaşılması,
-        geçerli tüketim ve referans verisi bulunması şartını ortadan kaldırmaz.'
+      content: |
+        {% set soguk = states('input_number.mg4_ek_soguk_sayisi') | int(0) %}
+        {% set ilik = states('input_number.mg4_ek_ilik_sayisi') | int(0) %}
+        {% set fark = states('sensor.mg4_soguk_hava_menzil_cezasi') %}
+        {% set egilim = states('sensor.mg4_batarya_performans_egilimi') %}
+        
+        **Soğuk hava tüketim farkı:** 10°C altındaki sürüşlerle 15–25°C arasındaki sürüşlerin ortalama tüketim farkını karşılaştırır. En az **5 soğuk ve 5 ılık sürüş** gerekir.
+        
+        {% if soguk < 5 %}- Soğuk hava: **{{ soguk }}/5** — {{ 5 - soguk }} sürüş daha gerekiyor.
+        {% else %}- Soğuk hava: **Yeterli sürüş toplandı** ({{ soguk }} sürüş).
+        {% endif %}
+        {% if ilik < 5 %}- Ilık hava: **{{ ilik }}/5** — {{ 5 - ilik }} sürüş daha gerekiyor.
+        {% else %}- Ilık hava: **Yeterli sürüş toplandı** ({{ ilik }} sürüş).
+        {% endif %}
+        {% if soguk >= 5 and ilik >= 5 %}
+        {% if fark not in ['unknown', 'unavailable', 'none', ''] %}**Karşılaştırma sonucu:** {{ fark }}%. Pozitif bir fark, sensörün hesaplama yönüne göre soğuk havada daha yüksek tüketimi gösterebilir; karşılaştırmayı benzer rota ve hız koşullarında değerlendir.
+        {% else %}*Sürüş sayısı yeterli; karşılaştırma sonucu için geçerli tüketim kayıtları bekleniyor.*{% endif %}
+        {% else %}*Karşılaştırma için sürüş verisi birikiyor.*{% endif %}
+        
+        **Batarya performans eğilimi:** Benzer sıcaklıklardaki sürüşlerde verimliliğin zamanla değişimini izler. En az **10 ılık sürüş** ve geçerli referans verisi gerekir.
+        
+        {% if ilik < 10 %}- Performans eğilimi: **{{ ilik }}/10** — {{ 10 - ilik }} ılık sürüş daha gerekiyor.
+        {% else %}- Performans eğilimi: **Yeterli sürüş toplandı** ({{ ilik }} ılık sürüş).
+        {% if egilim not in ['unknown', 'unavailable', 'none', ''] %}**Eğilim sonucu:** {{ egilim }}. Bu değer benzer koşullardaki sürüş verimliliği değişimini izler; batarya sağlığını doğrudan ölçmez.
+        {% else %}*Eğilim için geçerli referans ve tüketim verileri bekleniyor.*{% endif %}
+        {% endif %}
+        
+        **Not:** Performans eğilimi gerçek batarya sağlığı (SoH) ölçümü değildir. Sürüş sayısının yeterli olması, geçerli referans verisi gereksinimini ortadan kaldırmaz.
     - type: heading
       heading: Son sürüşe göre menzil · Hesap ayrıntıları
       heading_style: title

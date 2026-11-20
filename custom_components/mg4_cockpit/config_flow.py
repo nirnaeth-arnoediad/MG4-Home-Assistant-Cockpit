@@ -79,6 +79,8 @@ class MG4CockpitConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(step_id="manual", data_schema=vol.Schema({vol.Required("vin"): str}), errors={"base": error})
 
 
+RELEASE_NOTES = 'BETA v0.6.0-beta.3: Sürüş analizinde yeterli veri mesajları, daha anlaşılır sayaçlar ve sonuç açıklamaları eklendi. Geçici rollback test butonu kaldırıldı.'
+
 class MG4CockpitOptionsFlow(config_entries.OptionsFlow):
     """User approval is mandatory for update and rollback."""
 
@@ -114,15 +116,19 @@ class MG4CockpitOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             if not user_input.get("confirm"):
                 return self.async_abort(reason="cancelled")
+            package_changed = any(
+                key.startswith("packages/") and info.get("local_hashes", {}).get(key) != info.get("source_hashes", {}).get(key)
+                for key in info.get("source_hashes", {})
+            )
             try:
                 backup = await apply_update(self.hass)
             except Exception:
                 _LOGGER.exception("MG4 Cockpit güncellemesi başarısız")
                 return self.async_show_form(step_id="confirm", data_schema=vol.Schema({vol.Required("confirm", default=False): bool}), errors={"base": "update_failed"})
             from homeassistant.components import persistent_notification
-            persistent_notification.async_create(self.hass, "Pano güncellendi. Yedeğin /config/mg4_cockpit_backups/ klasörüne kaydedildi. Yeni YAML sensörleri için Home Assistant'ı yeniden başlatman gerekebilir.", title="MG4 Cockpit güncellendi", notification_id="mg4_cockpit_update")
+            persistent_notification.async_create(self.hass, ("Pano güncellendi. Yedeğin /config/mg4_cockpit_backups/ klasöründe.\n\n" + RELEASE_NOTES + ("\n\nYAML paketleri değişti. Yeni sensör tanımlarının yüklenmesi için Home Assistant'ı yeniden başlat." if package_changed else "\n\nYAML paketleri değişmedi; ikinci yeniden başlatma gerekmiyor.")), title="MG4 Cockpit güncellendi", notification_id="mg4_cockpit_update")
             return self.async_create_entry(title="", data={"last_action": "update", "backup": backup})
-        return self.async_show_form(step_id="confirm", data_schema=vol.Schema({vol.Required("confirm", default=False): bool}), description_placeholders={"message": "Mevcut panonun ve beş YAML paketinin yedeği alınacak. Güncelleme, panoda yaptığın kişisel düzenlemelerin üzerine yazabilir. İstersen son yedeğe dönebilirsin."})
+        return self.async_show_form(step_id="confirm", data_schema=vol.Schema({vol.Required("confirm", default=False): bool}), description_placeholders={"message": "Mevcut panonun ve beş YAML paketinin yedeği alınacak. Kişisel düzenlemelerin üzerine yazılabilir. İstersen son yedeğe dönebilirsin.\n\nBu sürümde: " + RELEASE_NOTES})
 
     async def async_step_rollback(self, user_input=None):
         if user_input is not None:
