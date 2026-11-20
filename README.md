@@ -45,7 +45,7 @@ Her güncellemenin özeti `CHANGELOG.md` dosyasında bulunur. Güncelleme tamaml
 2. **Home Assistant'ı yeniden başlatın.** Böylece yeni entegrasyon kodu yüklenir.
 3. **Ayarlar → Cihazlar ve Hizmetler → MG4 Cockpit Kurulum → Yapılandır** bölümünü açın.
 4. **Dashboardu güncelle** seçeneğini seçin ve onay ekranında işlemi onaylayın.
-5. Güncelleme tamamlanınca panoyu kontrol edin. **YAML paketleri de değiştiyse sensörlerin yeni tanımları için bir kez daha yeniden başlatmanız gerekebilir.** Yalnızca dashboard içeriği değiştiyse normalde ikinci yeniden başlatma gerekmez.
+5. Güncelleme tamamlanınca panoyu kontrol edin. **YAML paketleri değiştiyse yeni sensör tanımlarının yüklenmesi için yeniden başlatma bildirimi gösterilir.** Yalnızca dashboard güncellendiyse yeniden başlatma uyarısı gösterilmez.
 
 Güncelleme öncesinde mevcut pano ve MG4 YAML dosyaları `/config/mg4_cockpit_backups/` klasörüne yedeklenir. Kullanıcı düzenlemeleri yeni sürümle otomatik birleştirilmez; onaylanan güncelleme mevcut düzenin yerini alabilir. Önceki duruma dönmek için aynı **Yapılandır** ekranındaki **Son yedeğe dön** seçeneğini kullanın. Geri dönüş YAML sensörlerini de değiştirirse yeniden başlatma gerekebilir.
 
@@ -54,6 +54,17 @@ Güncelleme öncesinde mevcut pano ve MG4 YAML dosyaları `/config/mg4_cockpit_b
 EPİAŞ, MG4 Cockpit'in çalışması için gerekli değildir ve kurulum paketine otomatik eklenmez.
 
 EPİAŞ PTF sensörü `sensor.epias_guncel_ptf_kwh_2` mevcut ve kullanılabilir olduğunda şarj ekranında **Güncel PTF**, buna bağlı **tahmini fiyat** ve ilgili tarife açıklaması gösterilir. Sensör yoksa, devre dışıysa veya `unknown` / `unavailable` durumundaysa bu alanlar gizlenir. Diğer şarj bilgileri ve kontrolleri çalışmaya devam eder.
+
+### EPİAŞ verisini nasıl eklerim?
+
+EPİAŞ bağlantısı **isteğe bağlı ve ayrı bir kurulumdur**. MG4 Cockpit, EPİAŞ hesabı oluşturmaz veya EPİAŞ API erişimini otomatik yapılandırmaz. Bu özellik için Home Assistant'ta güncel PTF değerini sağlayan bir sensör bulunması gerekir.
+
+1. **Veri kaynağını hazırlayın.** EPİAŞ Şeffaflık Platformu'ndaki Piyasa Takas Fiyatı (PTF) verisini kullanan bir Home Assistant entegrasyonu ya da kendi API betiğinizi yapılandırın. API erişimi için gerekiyorsa EPİAŞ'ın güncel kimlik doğrulama ve kullanım koşullarını izleyin. Kullanıcı adı, parola veya erişim anahtarlarını GitHub'a yüklemeyin.
+2. **PTF birimini kontrol edin.** EPİAŞ kaynağındaki fiyatın birimini doğrulayın. Kaynak TL/MWh veriyorsa TL/kWh için **1000'e bölün**. MG4 Cockpit fiyat alanları TL/kWh değerini bekler.
+3. **Sensörü eşleştirin.** Home Assistant'ta **Geliştirici Araçları → Durumlar** bölümünde `sensor.epias_guncel_ptf_kwh_2` varlığının bulunduğunu ve sayısal bir değer ürettiğini doğrulayın. Kullandığınız sensörün varlık kimliği farklıysa, dashboarddaki EPİAŞ kartlarının sensör başvurularını kendi varlık kimliğinize göre uyarlayın. Yalnızca görünen adını değiştirmek yeterli olmayabilir.
+4. **Panoyu kontrol edin.** MG4 Cockpit → **Şarj** ekranını açın. Sensör kullanılabilir olduğunda PTF ve buna bağlı tahmini maliyet alanları görünür. Sensör yoksa veya devre dışıysa alanlar gizlenir.
+
+**Not:** PTF, tek başına nihai elektrik faturası birim fiyatı değildir; dağıtım bedeli, vergiler ve tarife koşulları nedeniyle gösterilen tutarlar tahminidir. EPİAŞ sensörünün otomatik kurulumu bu pakete dahil değildir.
 
 ## Güvenlik ve notlar
 
