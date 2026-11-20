@@ -1,4 +1,4 @@
-# MG4 Cockpit v0.6.0-beta.1 — Test planı
+# MG4 Cockpit v0.6.0-beta.2 — Test planı
 
 1. v0.5.0-beta.3 kurulumundan tam yedek al.
 2. v0.6'yı HACS'ten yükle ve HA'yı yeniden başlat. Pano değişmemeli.
@@ -12,3 +12,7 @@
 10. Pano üzerinde elle değişiklik yapıp güncelleme uyarısını test et.
 
 Not: Bu sürümde güncelleme kullanıcı değişikliklerini birleştirmez, yedekleyip üzerine yazar.
+
+
+## Rollback görsel testi
+Kokpit sekmesinin üstündeki “v0.6 Beta 2 – Test” butonu yalnızca test işaretidir; bir işlem başlatmaz. Entegrasyon > Yapılandır > Dashboardu güncelle ile uygulayın. Ardından Son yedeğe dön ile geri yükleyin; buton kaybolmalı. Yedek eski dashboardda zaten bu butonu içeriyorsa test geçersizdir.

@@ -28,24 +28,24 @@
   "options": {
     "step": {
       "init": {
-        "title": "MG4 Cockpit güncellemeleri",
+        "title": "MG4 Cockpit yönetimi",
         "description": "{message}",
         "data": {
-          "action": "Ne yapmak istiyorsun?"
+          "action": "Yapmak istediğin işlem"
         },
         "data_description": {
-          "action": "Güncelle veya son yedeğe dön"
+          "action": "Panoyu güncelle veya son yedeğe dön"
         }
       },
       "confirm": {
-        "title": "Güncellemeyi onayla",
+        "title": "Dashboard güncellensin mi?",
         "description": "{message}",
         "data": {
           "confirm": "Mevcut panonun ve paketlerin yedeklenip güncellenmesini onaylıyorum"
         }
       },
       "rollback": {
-        "title": "Son yedeğe dön",
+        "title": "Önceki sürüme dön",
         "description": "Son güncellemeden önceki pano ve YAML dosyaları geri yüklenecek.",
         "data": {
           "confirm": "Yedekten geri yüklemeyi onaylıyorum"

@@ -105,7 +105,7 @@ class MG4CockpitOptionsFlow(config_entries.OptionsFlow):
             description = "Bazı dosyaları kurulumdan sonra değiştirmişsin. Güncelleme bunların üzerine yazacak; önce yedek alınacak."
         elif not info.get("available"):
             description = "Yerel YAML dosyaları bu sürümle aynı. Yine de panoyu yenilemek istersen onay verebilirsin."
-        return self.async_show_form(step_id="init", description_placeholders={"message": description}, data_schema=vol.Schema({vol.Required("action"): vol.In(actions)}))
+        return self.async_show_form(step_id="init", description_placeholders={"message": description}, data_schema=vol.Schema({vol.Required("action"): selector.SelectSelector(selector.SelectSelectorConfig(options=[selector.SelectOptionDict(value="update", label="Dashboardu güncelle"), *([selector.SelectOptionDict(value="rollback", label="Son yedeğe dön")] if "rollback" in actions else [])], mode=selector.SelectSelectorMode.DROPDOWN))}))
 
     async def async_step_confirm(self, user_input=None):
         info = await status(self.hass)
@@ -122,7 +122,7 @@ class MG4CockpitOptionsFlow(config_entries.OptionsFlow):
             from homeassistant.components import persistent_notification
             persistent_notification.async_create(self.hass, "Pano güncellendi. Yedeğin /config/mg4_cockpit_backups/ klasörüne kaydedildi. Yeni YAML sensörleri için Home Assistant'ı yeniden başlatman gerekebilir.", title="MG4 Cockpit güncellendi", notification_id="mg4_cockpit_update")
             return self.async_create_entry(title="", data={"last_action": "update", "backup": backup})
-        return self.async_show_form(step_id="confirm", data_schema=vol.Schema({vol.Required("confirm", default=False): bool}), description_placeholders={"message": "Pano ve beş YAML paketi güncellenecek. Kullanıcı değişiklikleri varsa yedeklenip yeni sürümle değiştirilecek."})
+        return self.async_show_form(step_id="confirm", data_schema=vol.Schema({vol.Required("confirm", default=False): bool}), description_placeholders={"message": "Mevcut panonun ve beş YAML paketinin yedeği alınacak. Güncelleme, panoda yaptığın kişisel düzenlemelerin üzerine yazabilir. İstersen son yedeğe dönebilirsin."})
 
     async def async_step_rollback(self, user_input=None):
         if user_input is not None:

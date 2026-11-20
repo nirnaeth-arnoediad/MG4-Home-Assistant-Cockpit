@@ -96,7 +96,7 @@ async def establish_baseline(hass):
     if not all(target.is_file() for _, target in pairs):
         return
     state["hashes"] = {str(target.relative_to(root)): digest(target.read_bytes()) for _, target in pairs}
-    state["asset_version"] = "0.6.0-beta.1"
+    state["asset_version"] = "0.6.0-beta.2"
     await save_state(hass, state)
 
 
@@ -164,7 +164,7 @@ async def apply_update(hass):
         raise
     state = await get_state(hass)
     state["hashes"] = {str(t.relative_to(root)): digest(t.read_bytes()) for _, t in pairs}
-    state["asset_version"] = "0.6.0-beta.1"
+    state["asset_version"] = "0.6.0-beta.2"
     state["last_backup"] = stamp
     state["ui_hash"] = digest(json.dumps(new_config, sort_keys=True, ensure_ascii=False).encode("utf-8"))
     await save_state(hass, state)

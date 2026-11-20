@@ -26,10 +26,6 @@ MG4 Cockpit, SAIC iSmart MQTT Gateway ile Home Assistant'a aktarılan araç bilg
 
 `configuration.yaml` dosyasına pano kaydı eklenmez. MG4 paketlerinin çalışması için Home Assistant'ta `homeassistant.packages` ayarı **önceden etkin** olmalıdır; bu sürüm o ayarı da değiştirmez. İlk kurulumda üretilen YAML paketleri için yeniden başlatma gerekebilir. EPİAŞ isteğe bağlıdır.
 
-### v0.4 sürümünden yükseltme
-
-v0.4'ün `configuration.yaml` dosyasına eklediği `lovelace: dashboards: mg4-cockpit-hacs:` kaydı **otomatik silinmez**. Kayıt duruyorsa v0.5 aynı adresi kullanarak ikinci pano oluşturmaz. Geçişten önce Home Assistant yedeği alıp yalnızca v0.4'ün eklediği MG4 pano tanımını elle kaldırmak ve Home Assistant'ı yeniden başlatmak gerekir. Diğer `lovelace` ayarlarına dokunma. Eski pano ve paket dosyalarını silme.
-
 **Beta notu:** Depolama tabanlı otomatik pano kaydı, Home Assistant Core 2026.11.2 üzerinde henüz gerçek sistem testi görmedi. Home Assistant'ın dahili API'lerine dayanır; sürümler arasında değişebilir. Pano oluşmazsa günlükleri kontrol et.
 
 ## Güvenlik
